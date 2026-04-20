@@ -32,132 +32,180 @@
             border-color: #16a34a;
             box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2);
         }
+        /* Custom Range Slider Styling */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 28px;
+            width: 28px;
+            border-radius: 50%;
+            background: #16a34a;
+            cursor: pointer;
+            margin-top: -10px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: transform 0.1s;
+        }
+        input[type=range]::-webkit-slider-thumb:active {
+            transform: scale(1.1);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 8px;
+            cursor: pointer;
+            background: #d1d5db;
+            border-radius: 4px;
+        }
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #f3f4f6;
+            text-align: center;
+        }
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
 
-    <div id="app-container" class="w-full max-w-2xl bg-white rounded-2xl shadow-xl overflow-hidden min-h-[500px] flex flex-col relative">
+    <div id="app-container" class="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden min-h-[550px] flex flex-col relative">
         <!-- Header -->
-        <div class="bg-green-600 text-white p-4 text-center relative z-10">
+        <div class="bg-green-600 text-white p-4 text-center relative z-10 shadow-md">
             <h1 class="text-2xl font-bold"><i class="fa-solid fa-earth-americas mr-2"></i> My Climate Impact</h1>
             <p class="text-green-100 text-sm mt-1">Student Carbon Footprint Calculator</p>
         </div>
 
         <!-- Progress Bar -->
-        <div id="progress-container" class="w-full bg-gray-200 h-1.5 hidden">
-            <div id="progress-bar" class="bg-green-500 h-1.5 transition-all duration-300 w-0"></div>
+        <div id="progress-container" class="w-full bg-gray-200 h-2 hidden">
+            <div id="progress-bar" class="bg-green-400 h-2 transition-all duration-300 w-0"></div>
         </div>
 
         <!-- Dynamic Content Area -->
-        <div id="content-area" class="p-6 md:p-8 flex-grow flex flex-col justify-center">
+        <div id="content-area" class="p-6 md:p-8 flex-grow flex flex-col justify-center overflow-y-auto">
             <!-- Content gets injected here via JS -->
         </div>
-
     </div>
 
     <script>
         // --- DATA & CONFIGURATION ---
-        const BASELINE_CO2 = 4000; // Shared home infrastructure baseline
+        const BASELINE_CO2 = 6000; // Shared suburban home infrastructure baseline (lbs)
 
         const questions = [
+            // FOOD
             {
-                id: 'q1',
-                category: 'Food',
-                title: "What does your diet mostly look like?",
-                desc: "Producing food takes energy and water. Meat, especially beef, creates the most greenhouse gases.",
-                options: [
-                    { text: "I eat meat (beef, pork, chicken) almost every day.", icon: "fa-hamburger", value: 4000 },
-                    { text: "I eat an average mix of meat and veggies.", icon: "fa-utensils", value: 2500 },
-                    { text: "I am vegetarian (no meat, but eat dairy/eggs).", icon: "fa-cheese", value: 1500 },
-                    { text: "I am vegan (mostly plant-based).", icon: "fa-leaf", value: 1000 }
-                ]
+                id: 'q1', category: 'Food', type: 'slider',
+                title: "How many meals per week include RED MEAT (beef or lamb)?",
+                desc: "Beef produces massive amounts of methane. Think about burgers, steaks, and tacos.",
+                min: 0, max: 14, default: 4, unit: "meals / week", icon: "fa-hamburger",
+                multiplier: 350 // lbs CO2 per year per weekly meal
             },
             {
-                id: 'q2',
-                category: 'Food',
+                id: 'q2', category: 'Food', type: 'slider',
+                title: "How many meals per week include POULTRY, PORK, or FISH?",
+                desc: "Chicken and pork have a smaller footprint than beef, but still higher than plants.",
+                min: 0, max: 21, default: 7, unit: "meals / week", icon: "fa-drumstick-bite",
+                multiplier: 120 
+            },
+            {
+                id: 'q3', category: 'Food', type: 'options',
                 title: "How much food gets thrown away at your house or lunch?",
                 desc: "Food waste sitting in landfills creates methane, a powerful greenhouse gas.",
                 options: [
-                    { text: "A lot. I rarely finish what's on my plate.", icon: "fa-trash-can", value: 1000 },
-                    { text: "A little bit here and there.", icon: "fa-apple-whole", value: 500 },
-                    { text: "Almost none. We eat leftovers or compost.", icon: "fa-recycle", value: 0 }
+                    { text: "Almost none. We eat leftovers or compost.", icon: "fa-recycle", value: 0 },
+                    { text: "A little bit here and there.", icon: "fa-apple-whole", value: 400 },
+                    { text: "A lot. I rarely finish what's on my plate.", icon: "fa-trash-can", value: 1000 }
                 ]
             },
+            // TRANSPORT
             {
-                id: 'q3',
-                category: 'Transportation',
+                id: 'q4', category: 'Transportation', type: 'options',
                 title: "How do you usually get to school?",
-                desc: "Cars burn fossil fuels. Sharing rides or using muscle power lowers emissions.",
+                desc: "Riding the bus or walking saves massive amounts of fuel compared to everyone driving separately.",
                 options: [
-                    { text: "I am driven in a car, usually just me and my parent.", icon: "fa-car", value: 1500 },
-                    { text: "I carpool with other students.", icon: "fa-users-viewfinder", value: 800 },
-                    { text: "I take the school bus.", icon: "fa-bus", value: 400 },
-                    { text: "I walk or ride my bike.", icon: "fa-person-biking", value: 0 }
+                    { text: "Walk or ride my bike", icon: "fa-person-biking", value: 0 },
+                    { text: "Take the school bus", icon: "fa-bus", value: 300 },
+                    { text: "Carpool with others", icon: "fa-users-viewfinder", value: 600 },
+                    { text: "Driven in a car (just me and a parent)", icon: "fa-car", value: 1200 }
                 ]
             },
             {
-                id: 'q4',
-                category: 'Transportation',
-                title: "On the weekends, how do you get around?",
-                desc: "Think about sports, hanging out with friends, or running errands.",
+                id: 'q5', category: 'Transportation', type: 'slider',
+                title: "Roughly how many MILES is your commute to school?",
+                desc: "If you walk or bike, this doesn't add to your footprint. If you drive, distance matters!",
+                min: 1, max: 20, default: 5, unit: "miles (one way)", icon: "fa-route",
+                multiplier: 80 // Base multiplier, modified by method later in code, kept simple here as an additive for suburban sprawl
+            },
+            {
+                id: 'q6', category: 'Transportation', type: 'slider',
+                title: "On the weekend, how many HOURS do you spend riding in a car?",
+                desc: "Think about driving to sports tournaments, the mall, running errands, or visiting family.",
+                min: 0, max: 20, default: 4, unit: "hours / weekend", icon: "fa-car-side",
+                multiplier: 200 
+            },
+            // HOUSING / ENERGY
+            {
+                id: 'q7', category: 'Housing & Energy', type: 'options',
+                title: "How big is your bedroom?",
+                desc: "Larger rooms take a lot more energy to heat in the winter and cool in the summer.",
                 options: [
-                    { text: "I am driven almost everywhere.", icon: "fa-car-side", value: 2000 },
-                    { text: "A mix of being driven and walking/biking locally.", icon: "fa-shoe-prints", value: 1000 },
-                    { text: "I mostly stay local, walk, or ride my bike.", icon: "fa-bicycle", value: 200 }
+                    { text: "Small (just enough space for bed and desk)", icon: "fa-bed", value: 200 },
+                    { text: "Medium (average size room)", icon: "fa-door-open", value: 500 },
+                    { text: "Large (like a master bedroom or basement)", icon: "fa-house", value: 1000 }
                 ]
             },
             {
-                id: 'q5',
-                category: 'Energy',
-                title: "How do you handle your electronics (phone, laptop, tablet)?",
-                desc: "Even when devices are turned off, chargers left in the wall pull 'vampire power'.",
+                id: 'q8', category: 'Housing & Energy', type: 'options',
+                title: "Do you share your bedroom with a sibling?",
+                desc: "Sharing a room cuts your heating, cooling, and lighting footprint in half!",
                 options: [
-                    { text: "I leave everything plugged in 24/7.", icon: "fa-plug", value: 800 },
-                    { text: "I unplug devices when full, but leave chargers in the wall.", icon: "fa-battery-three-quarters", value: 400 },
-                    { text: "I actively manage power, use power strips, and unplug chargers.", icon: "fa-bolt", value: 100 }
+                    { text: "Yes, I share my room.", icon: "fa-user-group", value: -400 }, // Reward for sharing
+                    { text: "No, I have my own room.", icon: "fa-user", value: 0 }
                 ]
             },
             {
-                id: 'q6',
-                category: 'Energy',
-                title: "When you leave your bedroom for the day, what do you do?",
-                desc: "Heating, cooling, and lighting your home uses massive amounts of electricity.",
-                options: [
-                    { text: "I usually forget and leave lights/fans/TVs on.", icon: "fa-lightbulb", value: 1000 },
-                    { text: "I turn off the lights, but leave fans or AC running.", icon: "fa-fan", value: 500 },
-                    { text: "I turn off all lights, fans, and electronics.", icon: "fa-power-off", value: 100 }
-                ]
+                id: 'q9', category: 'Housing & Energy', type: 'slider',
+                title: "How many HOURS a day do you spend using large screens/electronics?",
+                desc: "Include TVs, gaming consoles, and desktop computers (these use way more power than phones).",
+                min: 0, max: 12, default: 4, unit: "hours / day", icon: "fa-gamepad",
+                multiplier: 150
             },
             {
-                id: 'q7',
-                category: 'Consumerism',
-                title: "When you get new clothes, where do they come from?",
+                id: 'q10', category: 'Housing & Energy', type: 'options',
+                title: "How do you handle charging your devices?",
+                desc: "Even when devices are 100% charged, plugged-in chargers pull 'vampire power'.",
+                options: [
+                    { text: "I actively unplug chargers when not using them.", icon: "fa-bolt", value: 0 },
+                    { text: "I unplug my phone, but leave the cord in the wall.", icon: "fa-battery-three-quarters", value: 300 },
+                    { text: "I leave my stuff plugged in 24/7.", icon: "fa-plug", value: 600 }
+                ]
+            },
+            // CONSUMERISM
+            {
+                id: 'q11', category: 'Consumerism', type: 'slider',
+                title: "How many NEW items of clothing do you get per month?",
                 desc: "'Fast fashion' requires massive amounts of water, shipping, and oil to produce.",
-                options: [
-                    { text: "Almost always brand new, trendy stuff from the mall/online.", icon: "fa-shirt", value: 2000 },
-                    { text: "A mix of new stuff and some hand-me-downs/thrifted items.", icon: "fa-socks", value: 800 },
-                    { text: "Mostly thrifted, vintage, or hand-me-downs.", icon: "fa-bag-shopping", value: 200 }
-                ]
+                min: 0, max: 15, default: 3, unit: "items / month", icon: "fa-shirt",
+                multiplier: 180
             },
             {
-                id: 'q8',
-                category: 'Consumerism',
-                title: "What do you usually drink out of at lunch or sports practice?",
-                desc: "Plastic is made from fossil fuels and takes hundreds of years to break down.",
-                options: [
-                    { text: "Single-use plastic water bottles, juice boxes, or Starbucks cups.", icon: "fa-bottle-water", value: 800 },
-                    { text: "A mix of disposable stuff and reusables.", icon: "fa-glass-water", value: 400 },
-                    { text: "Always a reusable water bottle (like a Stanley or Hydroflask).", icon: "fa-flask", value: 100 }
-                ]
+                id: 'q12', category: 'Consumerism', type: 'slider',
+                title: "How many single-use plastic bottles/cups do you use per week?",
+                desc: "Includes water bottles, Starbucks plastic cups, Gatorade bottles. Plastic is made from oil.",
+                min: 0, max: 30, default: 5, unit: "bottles / week", icon: "fa-bottle-water",
+                multiplier: 40
             }
         ];
 
-        // Pre-made profiles
-        const influencerAnswers = [0, 0, 0, 0, 0, 0, 0, 0]; // All highest options
-        const ecoTeenAnswers = [3, 2, 3, 2, 2, 2, 2, 2]; // All lowest/most eco options
+        // Pre-made profiles (array of values matching the 12 questions)
+        // Questions: 0:RedMeat(slider), 1:OtherMeat(slider), 2:Waste(opt), 3:CommuteMethod(opt), 4:CommuteDist(slider), 5:WeekendCar(slider), 6:RoomSize(opt), 7:ShareRoom(opt), 8:Screens(slider), 9:Charging(opt), 10:Clothes(slider), 11:Plastics(slider)
+        const influencerAnswers = [8, 10, 2, 3, 10, 12, 2, 1, 8, 2, 12, 20]; 
+        const ecoTeenAnswers =    [0, 2,  0, 0, 2,  2,  0, 0, 2, 0, 1,  0];
 
         // --- STATE ---
-        let currentStep = -1; // -1 is intro screen
+        let currentStep = -1; 
         let userAnswers = new Array(questions.length).fill(null);
 
         // --- DOM ELEMENTS ---
@@ -170,27 +218,27 @@
         function renderIntro() {
             progressContainer.classList.add('hidden');
             contentArea.innerHTML = `
-                <div class="text-center fade-in">
-                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600 text-4xl">
-                        <i class="fa-solid fa-seedling"></i>
+                <div class="text-center fade-in py-4">
+                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600 text-5xl shadow-inner">
+                        <i class="fa-solid fa-leaf"></i>
                     </div>
-                    <h2 class="text-3xl font-extrabold mb-4">Discover Your Impact</h2>
-                    <p class="text-gray-600 mb-8 max-w-md mx-auto">
-                        Climate change is a big global issue, but it starts with our daily habits. Let's find out how much your personal choices—from the food you eat to how you get to school—impact the planet.
+                    <h2 class="text-3xl font-extrabold mb-4 text-gray-800">Discover Your Impact</h2>
+                    <p class="text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
+                        Climate change is a global issue, but it starts with our daily habits. Let's find out how much your personal choices—from the food you eat to your screen time—impact the planet.
                     </p>
                     
-                    <button onclick="startQuiz()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-8 rounded-full shadow-lg hover:shadow-xl transition-all w-full md:w-auto mb-6">
-                        Calculate My Footprint
+                    <button onclick="startQuiz()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-10 rounded-full shadow-lg hover:shadow-xl transition-all w-full md:w-auto text-lg mb-8">
+                        Start My Audit <i class="fa-solid fa-arrow-right ml-2"></i>
                     </button>
                     
-                    <div class="mt-4 border-t pt-6">
-                        <p class="text-sm text-gray-500 mb-3 uppercase tracking-wider font-semibold">Or view a sample profile:</p>
-                        <div class="flex flex-col gap-2 md:flex-row md:justify-center">
-                            <button onclick="runSampleProfile('influencer')" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg transition-colors border border-gray-200">
-                                <i class="fa-solid fa-mobile-screen mr-1"></i> The "Fast Fashion" Profile
+                    <div class="mt-4 border-t border-gray-200 pt-6">
+                        <p class="text-sm text-gray-500 mb-4 uppercase tracking-wider font-bold">Or analyze a sample profile:</p>
+                        <div class="flex flex-col gap-3 md:flex-row md:justify-center">
+                            <button onclick="runSampleProfile('influencer')" class="text-sm bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold py-2 px-5 rounded-xl transition-colors border border-purple-200 shadow-sm flex items-center justify-center">
+                                <i class="fa-solid fa-mobile-screen mr-2"></i> The "Influencer"
                             </button>
-                            <button onclick="runSampleProfile('eco')" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 py-2 px-4 rounded-lg transition-colors border border-gray-200">
-                                <i class="fa-solid fa-bicycle mr-1"></i> The "Eco-Warrior" Profile
+                            <button onclick="runSampleProfile('eco')" class="text-sm bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-5 rounded-xl transition-colors border border-emerald-200 shadow-sm flex items-center justify-center">
+                                <i class="fa-solid fa-bicycle mr-2"></i> The "Eco-Teen"
                             </button>
                         </div>
                     </div>
@@ -206,14 +254,21 @@
         }
 
         function runSampleProfile(type) {
-            if(type === 'influencer') {
-                userAnswers = [...influencerAnswers];
-            } else {
-                userAnswers = [...ecoTeenAnswers];
-            }
+            userAnswers = type === 'influencer' ? [...influencerAnswers] : [...ecoTeenAnswers];
             currentStep = questions.length;
             progressContainer.classList.add('hidden');
             renderResults(type);
+        }
+
+        function updateSliderValue(val, unit) {
+            document.getElementById('slider-value-display').innerText = `${val} ${unit}`;
+            userAnswers[currentStep] = parseInt(val);
+            // Ensure next button is enabled
+            const nextBtn = document.getElementById('next-btn');
+            nextBtn.classList.replace('bg-gray-200', 'bg-green-600');
+            nextBtn.classList.replace('text-gray-400', 'text-white');
+            nextBtn.classList.remove('cursor-not-allowed');
+            nextBtn.disabled = false;
         }
 
         function renderQuestion() {
@@ -221,34 +276,65 @@
             const progress = ((currentStep) / questions.length) * 100;
             progressBar.style.width = `${progress}%`;
 
-            let optionsHtml = q.options.map((opt, index) => {
-                const isSelected = userAnswers[currentStep] === index;
-                return `
-                    <button onclick="selectOption(${index})" class="option-card w-full text-left p-4 rounded-xl border-2 ${isSelected ? 'selected' : 'border-gray-200 bg-white hover:bg-gray-50'} mb-3 flex items-center">
-                        <div class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-4 flex-shrink-0 text-gray-600 ${isSelected ? 'bg-green-100 text-green-600' : ''}">
-                            <i class="fa-solid ${opt.icon}"></i>
+            let inputHtml = "";
+
+            if (q.type === 'options') {
+                inputHtml = q.options.map((opt, index) => {
+                    const isSelected = userAnswers[currentStep] === index;
+                    return `
+                        <button onclick="selectOption(${index})" class="option-card w-full text-left p-4 rounded-xl border-2 ${isSelected ? 'selected' : 'border-gray-200 bg-white hover:bg-gray-50'} mb-3 flex items-center">
+                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4 flex-shrink-0 text-gray-600 text-lg ${isSelected ? 'bg-green-100 text-green-600' : ''}">
+                                <i class="fa-solid ${opt.icon}"></i>
+                            </div>
+                            <span class="font-medium text-gray-800 text-lg ${isSelected ? 'text-green-800 font-bold' : ''}">${opt.text}</span>
+                        </button>
+                    `;
+                }).join('');
+            } else if (q.type === 'slider') {
+                // Initialize default if null
+                if (userAnswers[currentStep] === null) {
+                    userAnswers[currentStep] = q.default;
+                }
+                const currentVal = userAnswers[currentStep];
+                
+                inputHtml = `
+                    <div class="bg-white p-8 rounded-xl border-2 border-green-100 shadow-sm mt-4">
+                        <div class="text-center mb-8">
+                            <div class="text-5xl font-extrabold text-green-600 mb-2" id="slider-value-display">${currentVal} ${q.unit}</div>
                         </div>
-                        <span class="font-medium text-gray-800 ${isSelected ? 'text-green-800' : ''}">${opt.text}</span>
-                    </button>
+                        <input type="range" min="${q.min}" max="${q.max}" step="1" value="${currentVal}" 
+                               oninput="updateSliderValue(this.value, '${q.unit}')" 
+                               class="w-full">
+                        <div class="flex justify-between text-gray-400 text-sm mt-2 font-medium">
+                            <span>${q.min}</span>
+                            <span>${q.max}</span>
+                        </div>
+                    </div>
                 `;
-            }).join('');
+            }
+
+            const canProceed = userAnswers[currentStep] !== null;
 
             contentArea.innerHTML = `
-                <div class="fade-in flex-grow flex flex-col">
-                    <div class="mb-2 text-sm font-bold text-green-600 tracking-wider uppercase">${q.category} &bull; Question ${currentStep + 1} of ${questions.length}</div>
-                    <h2 class="text-2xl font-bold text-gray-900 mb-2">${q.title}</h2>
-                    <p class="text-gray-500 mb-6 text-sm">${q.desc}</p>
+                <div class="fade-in flex-grow flex flex-col h-full">
+                    <div class="mb-3 flex items-center justify-between">
+                        <span class="text-sm font-bold text-green-600 tracking-wider uppercase bg-green-50 px-3 py-1 rounded-full"><i class="fa-solid ${q.icon} mr-2"></i> ${q.category}</span>
+                        <span class="text-sm font-bold text-gray-400">${currentStep + 1} / ${questions.length}</span>
+                    </div>
+                    
+                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight">${q.title}</h2>
+                    <p class="text-gray-500 mb-6 text-base">${q.desc}</p>
                     
                     <div class="flex-grow">
-                        ${optionsHtml}
+                        ${inputHtml}
                     </div>
 
-                    <div class="flex justify-between mt-8 pt-4 border-t border-gray-100">
-                        <button onclick="prevQuestion()" class="${currentStep === 0 ? 'invisible' : ''} text-gray-500 hover:text-gray-800 font-medium px-4 py-2 rounded-lg transition-colors">
+                    <div class="flex justify-between mt-8 pt-6 border-t border-gray-100">
+                        <button onclick="prevQuestion()" class="${currentStep === 0 ? 'invisible' : ''} text-gray-500 hover:text-gray-800 font-bold px-4 py-2 rounded-lg transition-colors flex items-center">
                             <i class="fa-solid fa-arrow-left mr-2"></i> Back
                         </button>
-                        <button onclick="nextQuestion()" id="next-btn" class="${userAnswers[currentStep] !== null ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'} font-bold py-2 px-6 rounded-lg transition-colors" ${userAnswers[currentStep] === null ? 'disabled' : ''}>
-                            ${currentStep === questions.length - 1 ? 'See Results' : 'Next'} <i class="fa-solid ${currentStep === questions.length - 1 ? 'fa-check' : 'fa-arrow-right'} ml-2"></i>
+                        <button onclick="nextQuestion()" id="next-btn" class="${canProceed ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'} font-bold py-3 px-8 rounded-xl transition-all shadow-md flex items-center text-lg" ${!canProceed ? 'disabled' : ''}>
+                            ${currentStep === questions.length - 1 ? 'See Results' : 'Next'} <i class="fa-solid ${currentStep === questions.length - 1 ? 'fa-chart-pie' : 'fa-arrow-right'} ml-2"></i>
                         </button>
                     </div>
                 </div>
@@ -283,17 +369,31 @@
             let categoryBreakdown = {
                 'Food': 0,
                 'Transportation': 0,
-                'Energy': 0,
+                'Housing & Energy': 0,
                 'Consumerism': 0
             };
 
             for (let i = 0; i < questions.length; i++) {
-                const answerIndex = userAnswers[i];
-                const questionData = questions[i];
-                const points = questionData.options[answerIndex].value;
-                
+                const answer = userAnswers[i];
+                const q = questions[i];
+                let points = 0;
+
+                if (q.type === 'options') {
+                    points = q.options[answer].value;
+                } else if (q.type === 'slider') {
+                    points = answer * q.multiplier;
+                }
+
+                // Special edge case: If they walk/bike to school, distance shouldn't add transport CO2
+                if (q.id === 'q5') { 
+                    const methodAnswer = userAnswers[3]; // q4 index
+                    if (methodAnswer === 0) { // Walk/Bike
+                        points = 0; 
+                    }
+                }
+
                 totalScore += points;
-                categoryBreakdown[questionData.category] += points;
+                categoryBreakdown[q.category] += points;
             }
 
             return { totalScore, categoryBreakdown };
@@ -301,6 +401,8 @@
 
         function renderResults(profileType) {
             progressContainer.classList.add('hidden');
+            contentArea.scrollTo(0,0);
+            
             const { totalScore, categoryBreakdown } = calculateScore();
             
             // Convert lbs to Tons
@@ -309,60 +411,114 @@
             // Find highest category
             let highestCategory = Object.keys(categoryBreakdown).reduce((a, b) => categoryBreakdown[a] > categoryBreakdown[b] ? a : b);
 
-            // Context generation
-            let message = "";
-            let colorClass = "";
-            let emoji = "";
-
-            if (totalScore <= 8000) {
-                message = "Incredible! Your footprint is significantly lower than the average US teen. You are making great, earth-conscious choices.";
-                colorClass = "text-green-600";
-                emoji = "🌱";
-            } else if (totalScore <= 13000) {
-                message = "You are right around the average for a US teenager! You do some things really well, but there is still room to improve your habits.";
-                colorClass = "text-yellow-600";
-                emoji = "🌎";
-            } else {
-                message = "Your footprint is higher than average. Your lifestyle relies heavily on fossil fuels. Small changes in your routine could make a massive difference.";
-                colorClass = "text-red-500";
-                emoji = "⚠️";
-            }
+            // Calculate striking facts
+            const sharks = Math.max(1, Math.round(tonsCO2)); // 1 ton = roughly 1 great white shark
+            const houses = Math.max(1, Math.round(tonsCO2)); // 1 ton of CO2 gas fills ~1 two-story house
+            const earths = Math.max(0.5, (tonsCO2 / 4.5)).toFixed(1); // Global sustainability target is ~4.5 tons
 
             let profileBadge = "";
             if(profileType === 'influencer') {
-                profileBadge = `<span class="bg-purple-100 text-purple-800 text-xs font-bold px-2 py-1 rounded mb-4 inline-block"><i class="fa-solid fa-user-tag mr-1"></i> Sample Profile: The Influencer</span>`;
+                profileBadge = `<div class="bg-purple-100 text-purple-800 text-sm font-bold px-4 py-2 rounded-full mb-6 inline-block mx-auto"><i class="fa-solid fa-user-tag mr-2"></i> Viewing Profile: The Influencer</div>`;
             } else if (profileType === 'eco') {
-                profileBadge = `<span class="bg-green-100 text-green-800 text-xs font-bold px-2 py-1 rounded mb-4 inline-block"><i class="fa-solid fa-leaf mr-1"></i> Sample Profile: The Eco-Warrior</span>`;
+                profileBadge = `<div class="bg-emerald-100 text-emerald-800 text-sm font-bold px-4 py-2 rounded-full mb-6 inline-block mx-auto"><i class="fa-solid fa-leaf mr-2"></i> Viewing Profile: The Eco-Teen</div>`;
             }
 
+            // Generate comparison bars width
+            const maxComparison = Math.max(20, tonsCO2); // Scale max to 20 or user's score
+            const usAvgWidth = (15 / maxComparison) * 100;
+            const globalAvgWidth = (4.5 / maxComparison) * 100;
+            const userWidth = (tonsCO2 / maxComparison) * 100;
+
+            let colorClass = tonsCO2 < 10 ? "text-green-600" : (tonsCO2 < 16 ? "text-yellow-500" : "text-red-500");
+
             contentArea.innerHTML = `
-                <div class="fade-in flex flex-col items-center text-center h-full justify-center">
-                    ${profileBadge}
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Your Estimated Carbon Footprint</h2>
-                    
-                    <div class="my-6 relative">
-                        <div class="w-48 h-48 rounded-full border-8 border-gray-100 flex items-center justify-center relative overflow-hidden">
-                            <div class="text-center z-10">
-                                <span class="text-5xl font-extrabold ${colorClass}">${tonsCO2}</span><br>
-                                <span class="text-sm text-gray-500 font-bold uppercase tracking-wider">Tons / Year</span>
+                <div class="fade-in pb-4">
+                    <div class="text-center">
+                        ${profileBadge}
+                        <h2 class="text-2xl font-bold text-gray-800 mb-1">Your Carbon Footprint</h2>
+                        <p class="text-gray-500 text-sm mb-6">Estimated Greenhouse Gas Emissions per Year</p>
+                        
+                        <div class="inline-block relative mb-8">
+                            <div class="text-7xl font-black ${colorClass} tracking-tighter">${tonsCO2}</div>
+                            <div class="text-xl font-bold text-gray-400 uppercase tracking-widest mt-1">Tons of CO₂</div>
+                        </div>
+                    </div>
+
+                    <!-- Striking Facts Grid -->
+                    <div class="mb-8">
+                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3 text-center">What does ${tonsCO2} tons look like?</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="stat-card flex items-center text-left">
+                                <div class="text-4xl text-blue-400 w-16 text-center"><i class="fa-solid fa-water"></i></div>
+                                <div>
+                                    <div class="font-bold text-gray-800 text-lg">Weight Equivalent</div>
+                                    <div class="text-sm text-gray-600">Your carbon weighs as much as <strong>${sharks} Great White Sharks</strong>.</div>
+                                </div>
+                            </div>
+                            <div class="stat-card flex items-center text-left">
+                                <div class="text-4xl text-yellow-500 w-16 text-center"><i class="fa-solid fa-house-chimney-window"></i></div>
+                                <div>
+                                    <div class="font-bold text-gray-800 text-lg">Volume Equivalent</div>
+                                    <div class="text-sm text-gray-600">As a gas, it would completely fill <strong>${houses} two-story houses</strong>.</div>
+                                </div>
                             </div>
                         </div>
                     </div>
 
-                    <p class="text-lg font-medium text-gray-800 max-w-md">${emoji} ${message}</p>
-                    
-                    <div class="bg-gray-50 rounded-xl p-4 mt-6 w-full max-w-sm border border-gray-100 text-left">
-                        <h3 class="text-sm font-bold text-gray-500 uppercase tracking-wider mb-2">Analysis</h3>
-                        <p class="text-sm text-gray-700">Your highest contributing category is: <strong class="text-green-700">${highestCategory}</strong>.</p>
-                        <p class="text-xs text-gray-500 mt-1 italic">Use this info for your reflection assignment!</p>
+                    <!-- Comparison Chart -->
+                    <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 mb-8">
+                        <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i class="fa-solid fa-chart-bar mr-2 text-gray-400"></i> Global Comparison</h3>
+                        
+                        <div class="mb-3">
+                            <div class="flex justify-between text-xs font-bold mb-1 text-gray-600">
+                                <span>Global Average</span> <span>4.5 Tons</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-green-400 h-3 rounded-full" style="width: ${globalAvgWidth}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <div class="flex justify-between text-xs font-bold mb-1 text-gray-600">
+                                <span>Average US Teen</span> <span>~15.0 Tons</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="bg-yellow-400 h-3 rounded-full" style="width: ${usAvgWidth}%"></div>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <div class="flex justify-between text-xs font-bold mb-1 ${colorClass}">
+                                <span>You (This Profile)</span> <span>${tonsCO2} Tons</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-3">
+                                <div class="${tonsCO2 < 10 ? 'bg-green-600' : (tonsCO2 < 16 ? 'bg-yellow-500' : 'bg-red-500')} h-3 rounded-full" style="width: ${userWidth}%"></div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div class="mt-8 flex gap-4 w-full">
-                        <button onclick="renderIntro()" class="w-1/3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-3 px-4 rounded-lg transition-colors">
-                            <i class="fa-solid fa-rotate-left"></i> Retry
+                    <!-- Earth Overshoot -->
+                    <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl mb-8">
+                        <h3 class="font-bold text-blue-900 mb-1 flex items-center"><i class="fa-solid fa-globe mr-2"></i> The "Earth" Metric</h3>
+                        <p class="text-blue-800 text-sm">
+                            If everyone on the planet lived exactly like this profile, we would need <strong>${earths} Earths</strong> to absorb the carbon pollution safely.
+                        </p>
+                    </div>
+
+                    <!-- Highest Category for Reflection -->
+                    <div class="text-center mb-8 border-t border-b border-gray-100 py-6">
+                        <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">Highest Emitting Category:</p>
+                        <p class="text-2xl font-black text-gray-800">${highestCategory}</p>
+                        <p class="text-xs text-gray-400 mt-2 italic">Make sure to note this down for your written reflection!</p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex flex-col md:flex-row gap-4 w-full">
+                        <button onclick="renderIntro()" class="md:w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-4 rounded-xl transition-colors border border-gray-200">
+                            <i class="fa-solid fa-rotate-left mr-2"></i> Start Over
                         </button>
-                        <button onclick="submitToLMS(${tonsCO2}, '${highestCategory}', '${profileType}')" id="submit-btn" class="w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors shadow-lg shadow-blue-200 flex items-center justify-center">
-                            <span>Submit to LMS</span> <i class="fa-solid fa-paper-plane ml-2"></i>
+                        <button onclick="submitToLMS(${tonsCO2}, '${highestCategory}', '${profileType}')" id="submit-btn" class="md:w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg shadow-blue-200/50 flex items-center justify-center text-lg hover:-translate-y-1">
+                            <span>Submit Data to Teacher</span> <i class="fa-solid fa-paper-plane ml-3"></i>
                         </button>
                     </div>
                 </div>
@@ -371,11 +527,11 @@
 
         function submitToLMS(score, topCategory, profileType) {
             const btn = document.getElementById('submit-btn');
-            btn.innerHTML = `<span>Submitting...</span> <i class="fa-solid fa-spinner fa-spin ml-2"></i>`;
+            btn.innerHTML = `<span>Submitting...</span> <i class="fa-solid fa-spinner fa-spin ml-3"></i>`;
             btn.classList.replace('bg-blue-600', 'bg-blue-400');
             btn.disabled = true;
 
-            // Prepare data bundle
+            // Prepare data bundle exactly as requested
             const payload = {
                 action: 'SIM_COMPLETE',
                 simData: {
@@ -391,12 +547,13 @@
 
             // Visual feedback for student
             setTimeout(() => {
-                btn.innerHTML = `<span>Submitted Successfully!</span> <i class="fa-solid fa-check ml-2"></i>`;
+                btn.innerHTML = `<span>Submitted Successfully!</span> <i class="fa-solid fa-check ml-3"></i>`;
                 btn.classList.replace('bg-blue-400', 'bg-green-600');
+                btn.classList.replace('hover:-translate-y-1', 'cursor-default');
             }, 800);
         }
 
-        // Initialize
+        // Initialize App
         renderIntro();
 
     </script>
