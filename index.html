@@ -132,7 +132,8 @@
                 title: "How do you usually get to school?",
                 desc: "Riding the bus or walking saves massive amounts of fuel compared to everyone driving separately.",
                 options: [
-                    { text: "Walk or ride my bike", icon: "fa-person-biking", value: 0 },
+                    { text: "Walk or pedal bike", icon: "fa-person-biking", value: 0 },
+                    { text: "E-bike or Electric Scooter", icon: "fa-bolt", value: 100 },
                     { text: "Take the school bus", icon: "fa-bus", value: 300 },
                     { text: "Carpool with others", icon: "fa-users-viewfinder", value: 600 },
                     { text: "Driven in a car (just me and a parent)", icon: "fa-car", value: 1200 }
@@ -141,9 +142,19 @@
             {
                 id: 'qCommuteDist', category: 'Transportation', type: 'slider',
                 title: "Roughly how many MILES is your commute to school?",
-                desc: "If you walk or bike, this doesn't add to your footprint. If you drive, distance matters!",
+                desc: "If you walk, this is zero impact. E-bikes have a small impact. Cars add up quickly!",
                 min: 1, max: 20, default: 5, unit: "miles (one way)", icon: "fa-route",
                 multiplier: 80 
+            },
+            {
+                id: 'qCarType', category: 'Transportation', type: 'options',
+                title: "When you ride in a car, what type of vehicle is it usually?",
+                desc: "Larger, heavier vehicles burn significantly more gas than smaller or electric cars.",
+                options: [
+                    { text: "Electric Vehicle (EV) or Plug-in Hybrid", icon: "fa-charging-station", value: -400 },
+                    { text: "Standard Sedan or Small SUV", icon: "fa-car-side", value: 0 },
+                    { text: "Large SUV (like a Tahoe), Minivan, or Pickup Truck", icon: "fa-truck", value: 600 }
+                ]
             },
             {
                 id: 'qWeekendCar', category: 'Transportation', type: 'slider',
@@ -165,9 +176,9 @@
                 title: "How big is your bedroom?",
                 desc: "Larger rooms take a lot more energy to heat in the winter and cool in the summer.",
                 options: [
-                    { text: "Small (just enough space for bed and desk)", icon: "fa-bed", value: 200 },
-                    { text: "Medium (average size room)", icon: "fa-door-open", value: 500 },
-                    { text: "Large (like a master bedroom or basement)", icon: "fa-house", value: 1000 }
+                    { text: "Small (about 10x10 ft - fits a twin bed and desk)", icon: "fa-bed", value: 200 },
+                    { text: "Medium (about 12x12 ft - fits a queen bed and dressers)", icon: "fa-door-open", value: 500 },
+                    { text: "Large (bigger than 15x15 ft - size of a master suite or 2-car garage)", icon: "fa-house", value: 1000 }
                 ]
             },
             {
@@ -180,11 +191,35 @@
                 ]
             },
             {
+                id: 'qTemp', category: 'Housing & Energy', type: 'options',
+                title: "How do you handle the temperature in your bedroom?",
+                desc: "Heating and cooling are usually the biggest energy drains in a house.",
+                options: [
+                    { text: "Eco: I use blankets/sweaters if cold, and fans if hot.", icon: "fa-leaf", value: -200 },
+                    { text: "Normal: I just let the house thermostat do its thing.", icon: "fa-thermometer-half", value: 0 },
+                    { text: "Wasteful: I use a space heater, or leave windows open while the AC/heat is on.", icon: "fa-temperature-arrow-up", value: 500 }
+                ]
+            },
+            {
                 id: 'qScreens', category: 'Housing & Energy', type: 'slider',
                 title: "How many HOURS a day do you spend using large screens/electronics?",
                 desc: "Include TVs, gaming consoles, and desktop computers (these use way more power than phones).",
                 min: 0, max: 12, default: 4, unit: "hours / day", icon: "fa-gamepad",
                 multiplier: 150
+            },
+            {
+                id: 'qStreaming', category: 'Housing & Energy', type: 'slider',
+                title: "How many HOURS a day do you stream video (TikTok, YouTube, Netflix)?",
+                desc: "Data centers that stream video require massive amounts of electricity to run and stay cool.",
+                min: 0, max: 12, default: 3, unit: "hours / day", icon: "fa-wifi",
+                multiplier: 40
+            },
+            {
+                id: 'qAI', category: 'Housing & Energy', type: 'slider',
+                title: "How many AI prompts (ChatGPT, Snapchat MyAI, etc.) do you use in a week?",
+                desc: "Generating an AI response uses up to 10 times the electricity and water of a standard Google search.",
+                min: 0, max: 100, default: 10, unit: "prompts / week", icon: "fa-robot",
+                multiplier: 4
             },
             {
                 id: 'qCharging', category: 'Housing & Energy', type: 'options',
@@ -203,6 +238,13 @@
                 desc: "'Fast fashion' requires massive amounts of water, shipping, and oil to produce.",
                 min: 0, max: 15, default: 3, unit: "items / month", icon: "fa-shirt",
                 multiplier: 180
+            },
+            {
+                id: 'qBeauty', category: 'Consumerism', type: 'slider',
+                title: "How many new skincare, makeup, or hair products do you buy a month?",
+                desc: "The beauty industry relies heavily on single-use plastics, complex chemical processing, and global shipping.",
+                min: 0, max: 15, default: 2, unit: "products / month", icon: "fa-pump-soap",
+                multiplier: 50
             },
             {
                 id: 'qPackages', category: 'Consumerism', type: 'slider',
@@ -226,20 +268,28 @@
                 multiplier: 40
             },
             {
+                id: 'qShoes', category: 'Consumerism', type: 'slider',
+                title: "How many NEW pairs of shoes/sneakers do you get in a year?",
+                desc: "Manufacturing rubber, foam, and leather for shoes is a highly carbon-intensive process.",
+                min: 0, max: 15, default: 3, unit: "pairs / year", icon: "fa-shoe-prints",
+                multiplier: 70
+            },
+            {
                 id: 'qPhone', category: 'Consumerism', type: 'options',
                 title: "How often do you get a new cell phone?",
                 desc: "Manufacturing the battery and mining the metals for a smartphone creates a huge carbon spike.",
                 options: [
                     { text: "Every year (I always want the newest model)", icon: "fa-mobile-screen-button", value: 800 },
                     { text: "Every 2-3 years", icon: "fa-mobile-screen", value: 300 },
-                    { text: "I keep it until it breaks, or I buy refurbished", icon: "fa-recycle", value: 50 }
+                    { text: "I keep it until it breaks, or I buy refurbished", icon: "fa-recycle", value: 50 },
+                    { text: "I don't have my own cell phone", icon: "fa-ban", value: 0 }
                 ]
             }
         ];
 
-        // Pre-made profiles updated for 17 questions
-        const influencerAnswers = [8, 10, 5, 2, 3, 10, 12, 4, 2, 1, 8, 2, 12, 15, 12, 20, 0]; 
-        const ecoTeenAnswers =    [0, 2,  0, 0, 0, 2,  2,  0, 0, 0, 2, 0, 1,  1,  1,  0,  2];
+        // Pre-made profiles updated for 23 questions
+        const influencerAnswers = [8, 10, 5, 2, 4, 10, 2, 12, 4, 2, 1, 2, 8, 8, 50, 2, 12, 10, 15, 12, 20, 10, 0]; 
+        const ecoTeenAnswers =    [0, 2,  0, 0, 0, 2,  0, 2,  0, 0, 0, 0, 2, 1, 0,  0, 1,  0,  1,  1,  1,  1,  2];
 
         // --- STATE ---
         let currentStep = -1; 
@@ -409,32 +459,48 @@
                 'Housing & Energy': 0,
                 'Consumerism': 0
             };
+            
+            let detailedReport = [];
 
             for (let i = 0; i < questions.length; i++) {
                 const answer = userAnswers[i];
                 const q = questions[i];
                 let points = 0;
+                let answerText = "";
 
                 if (q.type === 'options') {
                     points = q.options[answer].value;
+                    answerText = q.options[answer].text;
                 } else if (q.type === 'slider') {
                     points = answer * q.multiplier;
+                    answerText = `${answer} ${q.unit}`;
                 }
 
-                // Special edge case: If they walk/bike to school, distance shouldn't add transport CO2
+                // Special edge case: If they walk/bike or e-bike to school, adjust commute distance impact
                 if (q.id === 'qCommuteDist') { 
                     const methodIndex = questions.findIndex(quest => quest.id === 'qCommuteMethod');
                     const methodAnswer = userAnswers[methodIndex]; 
-                    if (methodAnswer === 0) { // Walk/Bike
+                    if (methodAnswer === 0) { // Walk/Pedal Bike
                         points = 0; 
+                    } else if (methodAnswer === 1) { // E-bike
+                        points = answer * 10; // Much lower impact per mile than a car
                     }
                 }
 
                 totalScore += points;
                 categoryBreakdown[q.category] += points;
+                
+                // Save readable data for the teacher's LMS
+                detailedReport.push({
+                    questionId: q.id,
+                    questionTitle: q.title,
+                    category: q.category,
+                    answerGiven: answerText,
+                    carbonPointsAdded: points
+                });
             }
 
-            return { totalScore, categoryBreakdown };
+            return { totalScore, categoryBreakdown, detailedReport };
         }
 
         function renderResults(profileType) {
@@ -453,6 +519,8 @@
             const sharks = Math.max(1, Math.round(tonsCO2)); // 1 ton = roughly 1 great white shark
             const houses = Math.max(1, Math.round(tonsCO2)); // 1 ton of CO2 gas fills ~1 two-story house
             const earths = Math.max(0.5, (tonsCO2 / 4.5)).toFixed(1); // Global sustainability target is ~4.5 tons
+            const trees = Math.round(tonsCO2 * 41).toLocaleString(); // 1 ton = ~41 mature trees to absorb in a year
+            const carMiles = Math.round(tonsCO2 * 2500).toLocaleString(); // 1 ton = ~2,500 miles driven
 
             let profileBadge = "";
             if(profileType === 'influencer') {
@@ -498,6 +566,20 @@
                                 <div>
                                     <div class="font-bold text-gray-800 text-lg">Volume Equivalent</div>
                                     <div class="text-sm text-gray-600">As a gas, it would completely fill <strong>${houses} two-story houses</strong>.</div>
+                                </div>
+                            </div>
+                            <div class="stat-card flex items-center text-left">
+                                <div class="text-4xl text-green-500 w-16 text-center"><i class="fa-solid fa-tree"></i></div>
+                                <div>
+                                    <div class="font-bold text-gray-800 text-lg">Tree Offset</div>
+                                    <div class="text-sm text-gray-600">It would take <strong>${trees} mature trees</strong> a full year to absorb this.</div>
+                                </div>
+                            </div>
+                            <div class="stat-card flex items-center text-left">
+                                <div class="text-4xl text-gray-500 w-16 text-center"><i class="fa-solid fa-car-rear"></i></div>
+                                <div>
+                                    <div class="font-bold text-gray-800 text-lg">Car Equivalent</div>
+                                    <div class="text-sm text-gray-600">This equals driving a gas car for <strong>${carMiles} miles</strong>.</div>
                                 </div>
                             </div>
                         </div>
@@ -555,7 +637,7 @@
                         <button onclick="renderIntro()" class="md:w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-4 rounded-xl transition-colors border border-gray-200">
                             <i class="fa-solid fa-rotate-left mr-2"></i> Start Over
                         </button>
-                        <button onclick="submitToLMS(${tonsCO2}, '${highestCategory}', '${profileType}')" id="submit-btn" class="md:w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg shadow-blue-200/50 flex items-center justify-center text-lg hover:-translate-y-1">
+                        <button onclick="submitToLMS('${profileType}')" id="submit-btn" class="md:w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg shadow-blue-200/50 flex items-center justify-center text-lg hover:-translate-y-1">
                             <span>Submit Data to Teacher</span> <i class="fa-solid fa-paper-plane ml-3"></i>
                         </button>
                     </div>
@@ -563,20 +645,26 @@
             `;
         }
 
-        function submitToLMS(score, topCategory, profileType) {
+        function submitToLMS(profileType) {
             const btn = document.getElementById('submit-btn');
             btn.innerHTML = `<span>Submitting...</span> <i class="fa-solid fa-spinner fa-spin ml-3"></i>`;
             btn.classList.replace('bg-blue-600', 'bg-blue-400');
             btn.disabled = true;
 
-            // Prepare data bundle exactly as requested
+            // Recalculate to get the detailed reporting data
+            const { totalScore, categoryBreakdown, detailedReport } = calculateScore();
+            const tonsCO2 = parseFloat((totalScore / 2000).toFixed(1));
+            const highestCategory = Object.keys(categoryBreakdown).reduce((a, b) => categoryBreakdown[a] > categoryBreakdown[b] ? a : b);
+
+            // Prepare data bundle exactly as requested, now with highly readable answers
             const payload = {
                 action: 'SIM_COMPLETE',
                 simData: {
-                    carbonTons: parseFloat(score),
-                    highestCategory: topCategory,
+                    carbonTons: tonsCO2,
+                    highestCategory: highestCategory,
                     profileUsed: profileType === 'user' ? 'Self' : profileType,
-                    rawAnswers: userAnswers
+                    detailedAnswers: detailedReport, // Array of { question, answerGiven, pointsAdded }
+                    rawAnswerIndices: userAnswers
                 }
             };
 
