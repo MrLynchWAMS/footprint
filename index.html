@@ -3,685 +3,1079 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>8th Grade Carbon Footprint Calculator</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <title>My Climate Impact — Carbon Footprint Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root {
+            --green-dark: #1a4a2e;
+            --green-mid: #2d6e47;
+            --green-bright: #3aaa64;
+            --green-light: #b6f0cd;
+            --green-pale: #eafaf1;
+            --ink: #111816;
+            --ink-soft: #3d5247;
+            --muted: #7a9487;
+            --border: #d4e8dc;
+            --white: #ffffff;
+            --surface: #f5faf7;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f0fdf4;
-            color: #1f2937;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--surface);
+            color: var(--ink);
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 24px 16px 48px;
         }
-        .fade-in {
-            animation: fadeIn 0.4s ease-in-out;
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 10% 0%, rgba(58,170,100,0.07) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 100%, rgba(26,74,46,0.05) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
         }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .option-card {
-            transition: all 0.2s ease;
-        }
-        .option-card:hover {
-            transform: translateY(-2px);
-            border-color: #22c55e;
-        }
-        .option-card.selected {
-            background-color: #dcfce7;
-            border-color: #16a34a;
-            box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2);
-        }
-        /* Custom Range Slider Styling */
-        input[type=range] {
-            -webkit-appearance: none;
+        .app {
             width: 100%;
-            background: transparent;
+            max-width: 720px;
+            background: var(--white);
+            border-radius: 24px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 20px 60px -10px rgba(26,74,46,0.12);
+            overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 28px;
-            width: 28px;
+        /* HEADER */
+        .header {
+            background: var(--green-dark);
+            padding: 26px 36px 22px;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            right: -40px; bottom: -40px;
+            width: 200px; height: 200px;
             border-radius: 50%;
-            background: #16a34a;
+            background: rgba(58,170,100,0.08);
+        }
+        .header h1 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 1.75rem;
+            color: var(--white);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .header h1 em { color: var(--green-bright); font-style: normal; }
+        .header p { font-size: 0.78rem; color: rgba(255,255,255,0.45); margin-top: 4px;
+            letter-spacing: 0.07em; text-transform: uppercase; font-weight: 500; }
+        /* PROGRESS */
+        .progress-wrap { background: rgba(255,255,255,0.1); height: 3px; }
+        .progress-bar { height: 3px; background: var(--green-bright); transition: width 0.4s ease; }
+        .progress-label {
+            background: var(--green-dark);
+            padding: 7px 36px;
+            font-size: 0.71rem;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cat-pill {
+            background: rgba(58,170,100,0.18);
+            color: var(--green-bright);
+            padding: 3px 10px;
+            border-radius: 99px;
+            font-size: 0.68rem;
+            letter-spacing: 0.04em;
+        }
+        /* CONTENT */
+        .content { padding: 32px 36px 26px; min-height: 420px; display: flex; flex-direction: column; }
+        /* INTRO */
+        .intro-icon {
+            width: 76px; height: 76px;
+            background: var(--green-pale);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 22px;
+            border: 2px solid var(--green-light);
+        }
+        .intro h2 {
+            font-family: 'DM Serif Display', serif;
+            font-size: 2rem; color: var(--ink);
+            text-align: center; margin-bottom: 12px;
+        }
+        .intro p {
+            color: var(--ink-soft); text-align: center;
+            line-height: 1.65; font-size: 0.94rem;
+            max-width: 500px; margin: 0 auto 28px;
+        }
+        .btn-primary {
+            background: var(--green-dark); color: var(--white);
+            border: none; padding: 15px 32px;
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem; font-weight: 700;
             cursor: pointer;
-            margin-top: -10px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            transition: background 0.18s, transform 0.15s;
+            display: inline-flex; align-items: center; gap: 8px;
+            width: 100%; justify-content: center;
+        }
+        .btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); }
+        .divider {
+            text-align: center; color: var(--muted);
+            font-size: 0.72rem; letter-spacing: 0.08em;
+            text-transform: uppercase; font-weight: 600;
+            margin: 20px 0; position: relative;
+        }
+        .divider::before, .divider::after {
+            content: ''; position: absolute;
+            top: 50%; width: calc(50% - 65px);
+            height: 1px; background: var(--border);
+        }
+        .divider::before { left: 0; } .divider::after { right: 0; }
+        .sample-btns { display: flex; gap: 10px; }
+        .btn-sample {
+            flex: 1;
+            background: var(--surface); color: var(--ink-soft);
+            border: 1.5px solid var(--border);
+            padding: 11px 14px; border-radius: 10px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.82rem; font-weight: 600;
+            cursor: pointer; transition: all 0.18s;
+            display: flex; align-items: center; justify-content: center; gap: 7px;
+        }
+        .btn-sample:hover { border-color: var(--green-bright); background: var(--green-pale); color: var(--green-dark); }
+        /* QUESTION */
+        .q-num { font-size: 0.71rem; color: var(--muted); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+        .q-title { font-family: 'DM Serif Display', serif; font-size: 1.5rem; color: var(--ink); line-height: 1.3; margin: 6px 0 8px; }
+        .q-desc { font-size: 0.87rem; color: var(--ink-soft); line-height: 1.55; }
+        /* OPTIONS */
+        .options-list { display: flex; flex-direction: column; gap: 9px; margin-top: 16px; }
+        .option-btn {
+            background: var(--white); border: 1.5px solid var(--border);
+            border-radius: 12px; padding: 13px 16px;
+            cursor: pointer; display: flex; align-items: center; gap: 13px;
+            transition: all 0.16s;
+            font-family: 'DM Sans', sans-serif; text-align: left; width: 100%;
+        }
+        .option-btn:hover { border-color: var(--green-bright); background: var(--green-pale); }
+        .option-btn.selected { border-color: var(--green-dark); background: var(--green-pale); box-shadow: 0 0 0 3px rgba(58,170,100,0.15); }
+        .opt-icon {
+            width: 38px; height: 38px; border-radius: 9px;
+            background: var(--surface);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; flex-shrink: 0;
+            transition: background 0.16s;
+            line-height: 1;
+        }
+        .option-btn.selected .opt-icon { background: var(--green-bright); }
+        .opt-text { font-size: 0.91rem; font-weight: 500; color: var(--ink); }
+        .option-btn.selected .opt-text { color: var(--green-dark); font-weight: 700; }
+        /* SLIDER */
+        .slider-display {
+            background: var(--green-pale); border: 1.5px solid var(--green-light);
+            border-radius: 14px; padding: 18px 20px; text-align: center; margin: 14px 0 18px;
+        }
+        .slider-val { font-family: 'DM Serif Display', serif; font-size: 2.8rem; color: var(--green-dark); line-height: 1; }
+        .slider-unit { font-size: 0.84rem; color: var(--muted); margin-top: 3px; font-weight: 500; }
+        .slider-impact {
+            font-size: 0.77rem; color: var(--ink-soft); margin-top: 8px;
+            background: rgba(255,255,255,0.75); padding: 4px 12px;
+            border-radius: 99px; display: inline-block; font-weight: 600;
+        }
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; cursor: pointer; }
+        input[type=range]::-webkit-slider-runnable-track { height: 6px; background: var(--border); border-radius: 3px; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 28px; height: 28px;
+            border-radius: 50%; background: var(--green-dark);
+            margin-top: -11px;
+            box-shadow: 0 2px 8px rgba(26,74,46,0.3);
             transition: transform 0.1s;
         }
-        input[type=range]::-webkit-slider-thumb:active {
-            transform: scale(1.1);
+        input[type=range]::-webkit-slider-thumb:active { transform: scale(1.12); }
+        .slider-minmax { display: flex; justify-content: space-between; font-size: 0.71rem; color: var(--muted); margin-top: 5px; font-weight: 600; }
+        /* RUNNING TOTAL */
+        .running-total {
+            background: var(--ink); color: var(--white);
+            border-radius: 10px; padding: 10px 16px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 16px; font-size: 0.81rem;
         }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 8px;
+        .rt-left { color: rgba(255,255,255,0.5); font-weight: 500; display: flex; align-items: center; gap: 7px; }
+        .rt-icon { font-size: 0.95rem; }
+        .rt-val { font-family: 'DM Serif Display', serif; font-size: 1.2rem; color: var(--green-bright); }
+        /* NAV */
+        .nav-row {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--border);
+            gap: 10px;
+        }
+        /* Back button — pill ghost */
+        .btn-back {
+            display: inline-flex; align-items: center; gap: 0;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 0;
+            overflow: hidden;
             cursor: pointer;
-            background: #d1d5db;
-            border-radius: 4px;
+            transition: all 0.16s;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem; font-weight: 600;
+            color: var(--ink-soft);
+            min-width: 96px;
         }
-        .stat-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            border: 1px solid #f3f4f6;
-            text-align: center;
+        .btn-back:hover { border-color: var(--green-bright); color: var(--green-dark); background: var(--green-pale); }
+        .btn-back-arrow {
+            display: flex; align-items: center; justify-content: center;
+            width: 38px; height: 44px;
+            background: rgba(0,0,0,0.04);
+            border-right: 1px solid var(--border);
+            font-size: 1rem; flex-shrink: 0;
+            transition: background 0.16s;
+        }
+        .btn-back:hover .btn-back-arrow { background: rgba(58,170,100,0.1); border-color: var(--green-light); }
+        .btn-back-label { padding: 0 14px 0 10px; }
+        /* Next button — solid */
+        .btn-next {
+            display: inline-flex; align-items: center; gap: 0;
+            background: var(--green-dark); color: var(--white);
+            border: 1.5px solid transparent;
+            border-radius: 10px;
+            padding: 0;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.16s;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem; font-weight: 700;
+            flex: 1;
+        }
+        .btn-next:hover:not(:disabled) { background: var(--green-mid); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,74,46,0.22); }
+        .btn-next:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; transform: none; }
+        .btn-next-label { flex: 1; text-align: center; padding: 13px 16px; }
+        .btn-next-arrow {
+            display: flex; align-items: center; justify-content: center;
+            width: 42px; height: 100%;
+            background: rgba(255,255,255,0.1);
+            border-left: 1px solid rgba(255,255,255,0.15);
+            font-size: 1rem;
+            flex-shrink: 0;
+        }
+        .btn-next:disabled .btn-next-arrow { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.08); }
+        /* RESULTS */
+        .results-score { text-align: center; padding: 24px 0 18px; }
+        .score-number { font-family: 'DM Serif Display', serif; font-size: 4.5rem; line-height: 1; }
+        .score-unit { font-size: 0.88rem; color: var(--muted); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; margin-top: 4px; }
+        .score-mood { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
+        .results-section { margin-bottom: 22px; }
+        .section-title {
+            font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
+            text-transform: uppercase; color: var(--muted);
+            margin-bottom: 11px;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .facts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+        .fact-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 12px; padding: 13px;
+            display: flex; align-items: flex-start; gap: 11px;
+        }
+        .fact-em { font-size: 1.4rem; flex-shrink: 0; margin-top: 1px; line-height: 1; }
+        .fact-card strong { font-size: 0.78rem; font-weight: 800; display: block; color: var(--ink); margin-bottom: 2px; }
+        .fact-card span { font-size: 0.74rem; color: var(--ink-soft); line-height: 1.4; }
+        .cmp-row { margin-bottom: 13px; }
+        .cmp-labels { display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; margin-bottom: 5px; }
+        .cmp-track { background: var(--border); border-radius: 99px; height: 10px; overflow: hidden; }
+        .cmp-fill { height: 10px; border-radius: 99px; }
+        .cat-row { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; }
+        .cat-name { font-size: 0.8rem; font-weight: 700; width: 135px; flex-shrink: 0; color: var(--ink-soft); }
+        .cat-track { flex: 1; background: var(--border); border-radius: 99px; height: 8px; overflow: hidden; }
+        .cat-fill { height: 8px; border-radius: 99px; }
+        .cat-val { font-size: 0.74rem; font-weight: 800; color: var(--ink); width: 48px; text-align: right; flex-shrink: 0; }
+        .reflection-box {
+            background: linear-gradient(135deg, var(--green-dark), var(--green-mid));
+            border-radius: 14px; padding: 20px; color: var(--white); margin-bottom: 22px;
+        }
+        .reflection-box h3 { font-family: 'DM Serif Display', serif; font-size: 1.1rem; margin-bottom: 8px; }
+        .reflection-box p { font-size: 0.82rem; opacity: 0.85; line-height: 1.6; }
+        .reflection-box ul { padding-left: 18px; margin-top: 8px; }
+        .reflection-box ul li { font-size: 0.81rem; opacity: 0.85; line-height: 1.75; }
+        .tips-list { display: flex; flex-direction: column; gap: 8px; }
+        .tip-item {
+            background: var(--surface); border: 1px solid var(--border);
+            border-left: 3px solid var(--green-bright);
+            border-radius: 8px; padding: 10px 13px;
+            font-size: 0.82rem; color: var(--ink-soft); line-height: 1.5;
+        }
+        .tip-item strong { color: var(--ink); }
+        .results-actions { display: flex; gap: 10px; margin-top: 4px; }
+        .btn-restart {
+            flex: 1; background: var(--surface); border: 1.5px solid var(--border);
+            color: var(--ink-soft); border-radius: 10px;
+            padding: 13px; font-family: 'DM Sans', sans-serif;
+            font-size: 0.88rem; font-weight: 600;
+            cursor: pointer; transition: all 0.18s;
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+        }
+        .btn-restart:hover { border-color: var(--green-bright); background: var(--green-pale); color: var(--green-dark); }
+        .btn-submit {
+            flex: 2; background: var(--green-dark); color: var(--white);
+            border: 1.5px solid transparent; border-radius: 10px;
+            padding: 13px; font-family: 'DM Sans', sans-serif;
+            font-size: 0.95rem; font-weight: 700;
+            cursor: pointer; transition: all 0.18s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-submit:hover:not(:disabled) { background: var(--green-mid); transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,74,46,0.2); }
+        .btn-submit:disabled { cursor: not-allowed; transform: none; opacity: 0.85; }
+        .btn-submit.done { background: #059669; }
+        .profile-badge {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 13px; border-radius: 99px;
+            font-size: 0.74rem; font-weight: 700; margin-bottom: 10px;
+        }
+        .badge-inf { background: #f3e8ff; color: #7c3aed; }
+        .badge-eco { background: var(--green-pale); color: var(--green-dark); }
+        .fade-in { animation: fadeUp 0.32s ease both; }
+        @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+        @media(max-width:600px){
+            .content{padding:22px 18px 18px;}
+            .header{padding:18px 18px 16px;}
+            .header h1{font-size:1.4rem;}
+            .facts-grid{grid-template-columns:1fr;}
+            .q-title{font-size:1.28rem;}
+            .sample-btns{flex-direction:column;}
+            .results-actions{flex-direction:column;}
+            .progress-label{padding:7px 18px;}
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
-
-    <div id="app-container" class="w-full max-w-3xl bg-white rounded-2xl shadow-xl overflow-hidden min-h-[550px] flex flex-col relative">
-        <!-- Header -->
-        <div class="bg-green-600 text-white p-4 text-center relative z-10 shadow-md">
-            <h1 class="text-2xl font-bold"><i class="fa-solid fa-earth-americas mr-2"></i> My Climate Impact</h1>
-            <p class="text-green-100 text-sm mt-1">Student Carbon Footprint Calculator</p>
-        </div>
-
-        <!-- Progress Bar -->
-        <div id="progress-container" class="w-full bg-gray-200 h-2 hidden">
-            <div id="progress-bar" class="bg-green-400 h-2 transition-all duration-300 w-0"></div>
-        </div>
-
-        <!-- Dynamic Content Area -->
-        <div id="content-area" class="p-6 md:p-8 flex-grow flex flex-col justify-center overflow-y-auto">
-            <!-- Content gets injected here via JS -->
-        </div>
+<body>
+<div class="app">
+    <div class="header">
+        <h1>🌿 My <em>Climate</em> Impact</h1>
+        <p>8th Grade Carbon Footprint Audit</p>
     </div>
+    <div class="progress-wrap" id="progressWrap" style="display:none">
+        <div class="progress-bar" id="progressBar" style="width:0%"></div>
+    </div>
+    <div class="progress-label" id="progressLabel" style="display:none">
+        <span id="progressText">Question 1</span>
+        <span class="cat-pill" id="catPill">Food</span>
+    </div>
+    <div class="content" id="content"></div>
+</div>
+<script>
+// ═══════════════════════════════════════════════
+// CONSTANTS
+// ═══════════════════════════════════════════════
+// BASELINE (2200 lbs = 1.1 tons) represents shared household infrastructure
+// (water heating, shared lighting, internet router, etc.) per person in a
+// typical US home. It is ONLY added to the FINAL score, not the running ticker.
+const BASELINE = 2200;
 
-    <script>
-        // --- DATA & CONFIGURATION ---
-        const BASELINE_CO2 = 6000; // Shared suburban home infrastructure baseline (lbs)
+// ═══════════════════════════════════════════════
+// QUESTIONS
+// icon = emoji (no CDN dependency)
+// ═══════════════════════════════════════════════
+const questions = [
+    // ── FOOD
+    {
+        id:'qMeatRed', category:'Food', type:'slider', icon:'🍔',
+        title:'How many meals a week include red meat?',
+        desc:'Beef and lamb are extremely carbon-intensive — cattle produce methane and require massive land use. Think burgers, steaks, beef tacos, and ground beef in pasta.',
+        min:0, max:14, default:4, unit:'meals / week',
+        // Beef ≈ 27 kg CO₂e/kg protein. Typical serving ≈ 0.25 lb meat ≈ 6.6 lbs CO₂e/meal × 52 wks ≈ 343 lbs/yr per weekly meal.
+        multiplier:340,
+        impactText: v => v===0 ? 'Zero impact! ✓' : `≈ ${Math.round(v*340).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qMeatOther', category:'Food', type:'slider', icon:'🍗',
+        title:'How many meals a week include chicken, pork, or fish?',
+        desc:'These have a much smaller footprint than beef but still higher than plants. Includes chicken sandwiches, fish tacos, pork chops, deli meat, etc.',
+        min:0, max:21, default:7, unit:'meals / week',
+        // Chicken ≈ 6.9 kg CO₂e/kg. Serving ≈ 0.25 lb → 0.78 lbs/meal × 52 ≈ 41 lbs/yr per weekly meal.
+        multiplier:41,
+        impactText: v => v===0 ? 'Zero impact! ✓' : `≈ ${Math.round(v*41).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qDairy', category:'Food', type:'options', icon:'🥛',
+        title:'How much dairy do you consume?',
+        desc:'Milk, cheese, yogurt, butter, and ice cream all come from cows. Dairy is a major hidden carbon source in many diets.',
+        options:[
+            {text:'None — I use oat milk or other plant-based alternatives',  icon:'🌱', value:0},
+            {text:'A little — occasional cheese or yogurt',                    icon:'🧀', value:300},
+            {text:'Moderate — daily milk and regular cheese use',              icon:'🥛', value:750},
+            {text:'A lot — ice cream, milkshakes, cheese on everything',       icon:'🍦', value:1400}
+        ]
+    },
+    {
+        id:'qFoodWaste', category:'Food', type:'options', icon:'🗑️',
+        title:'How much food gets wasted at your house?',
+        desc:'Food rotting in landfills produces methane, a greenhouse gas 80× more potent than CO₂ in the short term. The US wastes 30–40% of all food produced.',
+        options:[
+            {text:'Almost none — we eat leftovers and compost scraps',     icon:'♻️', value:0},
+            {text:'A little — some stuff occasionally goes bad',            icon:'🍎', value:250},
+            {text:'A fair amount — leftovers often get tossed',            icon:'🗑️', value:600},
+            {text:'A lot — food gets thrown away nearly every day',        icon:'🔥', value:1100}
+        ]
+    },
+    {
+        id:'qTakeout', category:'Food', type:'slider', icon:'🛵',
+        title:'How many times a week do you get takeout or food delivery?',
+        desc:'DoorDash, Uber Eats, etc. require a dedicated car trip just for your food, plus single-use containers, bags, and utensils.',
+        min:0, max:10, default:2, unit:'deliveries / week',
+        // Delivery: avg 3-mile round trip for a car ≈ 3 lbs CO₂ + packaging ~1.5 lbs = ~4.5 lbs/delivery × 52 ≈ 234 lbs per weekly delivery.
+        multiplier:230,
+        impactText: v => v===0 ? 'Zero impact! ✓' : `≈ ${Math.round(v*230).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qCaffeine', category:'Food', type:'options', icon:'☕',
+        title:"What's your coffee or boba tea habit?",
+        desc:'Daily drive-through runs involve dairy, disposable cups and lids, a car trip, and global supply chains. A homemade tea with a reusable mug is much lower impact.',
+        options:[
+            {text:"I don't drink coffee, boba, or specialty drinks",              icon:'🚫', value:0},
+            {text:'Home-brewed coffee or tea with a reusable mug',               icon:'🫖', value:50},
+            {text:'Occasional coffee shop or drive-through (a few times a week)', icon:'🚗', value:200},
+            {text:'Daily Starbucks, Dutch Bros, boba, or similar order',          icon:'☕', value:650}
+        ]
+    },
+    // ── TRANSPORTATION
+    {
+        id:'qCarType', category:'Transportation', type:'options', icon:'🚗',
+        title:'When you ride in a car, what type is it usually?',
+        desc:'Vehicle type matters enormously. A large SUV or truck can burn 2–3× the fuel of a small sedan. An EV has far lower emissions even accounting for the electricity grid.',
+        options:[
+            {text:'Full Electric Vehicle (EV)',                                          icon:'⚡', value:-400},
+            {text:'Plug-in Hybrid (PHEV)',                                               icon:'🔋', value:-150},
+            {text:'Regular Hybrid (like a Prius)',                                       icon:'🍃', value:0},
+            {text:'Small or midsize sedan or SUV (Civic, Camry, RAV4)',                  icon:'🚗', value:400},
+            {text:'Large SUV, Minivan, or Pickup Truck (Tahoe, F-150, Odyssey)',         icon:'🚛', value:1100}
+        ]
+    },
+    {
+        id:'qCommuteMethod', category:'Transportation', type:'options', icon:'🏫',
+        title:'How do you usually get to school?',
+        desc:'Your daily commute happens ~180 days per year. The method makes a massive cumulative difference.',
+        options:[
+            {text:'Walk or pedal bike',                          icon:'🚲', value:0},
+            {text:'E-bike or electric scooter',                  icon:'⚡', value:60},
+            {text:'School bus (shared with many students)',       icon:'🚌', value:280},
+            {text:'Carpool (3 or more people in the car)',        icon:'👥', value:450},
+            {text:'Carpool (just you and one other person)',      icon:'👤', value:750},
+            {text:'Private drop-off (you and a parent/guardian)',icon:'🚗', value:1500}
+        ]
+    },
+    {
+        id:'qCommuteDist', category:'Transportation', type:'slider', icon:'📍',
+        title:'How many miles is your school commute one-way?',
+        desc:'Distance multiplies the impact of your commute method. Walking or biking 10 miles is still zero emissions; driving 10 miles is twice the impact of driving 5.',
+        min:0, max:20, default:5, unit:'miles (one way)',
+        // Adjusted in calculateScore based on commute method + car type.
+        multiplier:0,
+        impactText: v => `Impact depends on your commute method above`
+    },
+    {
+        id:'qWeekendCar', category:'Transportation', type:'slider', icon:'🗺️',
+        title:'On a typical weekend, how many hours do you spend riding in a car?',
+        desc:'Think mall trips, sports practices, errands, visiting friends and family, drive-throughs, and restaurant outings.',
+        min:0, max:20, default:4, unit:'hours / weekend',
+        // Avg suburban driving ~30 mph × 0.89 lbs CO₂/mi for reference car = ~26.7 lbs/hr.
+        // × 52 weekends ≈ 1,388 lbs. Use 180 as baseline (mid-size car) and scale by car type in calculateScore.
+        multiplier:180,
+        impactText: v => v===0 ? 'Zero weekend driving! ✓' : `≈ ${Math.round(v*180).toLocaleString()} lbs CO₂/yr (varies by car type)`
+    },
+    {
+        id:'qFlights', category:'Transportation', type:'options', icon:'✈️',
+        title:'How many round-trip flights did you take in the last year?',
+        desc:'Flying is one of the most carbon-intensive activities per hour. Distance matters hugely — a coast-to-coast flight produces far more than a short regional hop.',
+        options:[
+            {text:'None',                                                        icon:'🚫', value:0},
+            {text:'1 short flight (under 2 hrs, e.g. NJ to FL)',                icon:'✈️', value:1100},
+            {text:'2–3 short flights',                                           icon:'✈️', value:2800},
+            {text:'1 long flight (cross-country or international)',              icon:'🌎', value:3500},
+            {text:'2+ long flights, or I fly frequently',                        icon:'🌏', value:7500}
+        ]
+    },
+    {
+        id:'qSports', category:'Transportation', type:'options', icon:'🏆',
+        title:'How far do you travel for sports or activities?',
+        desc:'Club sports, travel teams, music competitions, and tournaments can mean 3–5+ hours of driving per weekend across an entire season.',
+        options:[
+            {text:"I don't do organized sports or activities",                          icon:'🚫', value:0},
+            {text:'Local only — under 15 minutes away',                                icon:'📍', value:300},
+            {text:'Regional — occasional 30–60 min drives for games or tournaments',   icon:'🚗', value:800},
+            {text:'Travel team — frequent multi-hour drives, sometimes overnight',     icon:'🧳', value:2000}
+        ]
+    },
+    // ── HOUSING & ENERGY
+    {
+        id:'qHouseType', category:'Housing & Energy', type:'options', icon:'🏠',
+        title:'What type of home do you live in?',
+        desc:'Larger homes require dramatically more energy to heat and cool. Apartments and townhouses share walls, which saves substantial energy compared to a detached house.',
+        options:[
+            {text:'Apartment or condo (above another unit)',              icon:'🏢', value:0},
+            {text:'Townhouse or rowhouse (shares walls on the sides)',    icon:'🏠', value:400},
+            {text:'Small detached house (under 1,500 sq ft)',             icon:'🏡', value:900},
+            {text:'Large detached house (over 2,500 sq ft)',              icon:'🏰', value:1800}
+        ]
+    },
+    {
+        id:'qHomeEnergy', category:'Housing & Energy', type:'options', icon:'☀️',
+        title:'Does your home use renewable energy?',
+        desc:'Solar panels or a green energy subscription can dramatically cut the carbon footprint of your electricity. Gas furnaces and gas stoves also add significant CO₂.',
+        options:[
+            {text:'Yes — we have solar panels or a 100% renewable energy plan',  icon:'☀️', value:-600},
+            {text:"Not sure — probably standard utility power",                  icon:'🔌', value:0},
+            {text:'No — and we use gas for heating and/or cooking',              icon:'🔥', value:700}
+        ]
+    },
+    {
+        id:'qRoomShare', category:'Housing & Energy', type:'options', icon:'👥',
+        title:'Do you share your bedroom with a sibling?',
+        desc:'Sharing a room means sharing the heating, cooling, and lighting costs — cutting that room\'s footprint roughly in half.',
+        options:[
+            {text:'Yes, I share my room',   icon:'👥', value:-300},
+            {text:'No, I have my own room', icon:'👤', value:0}
+        ]
+    },
+    {
+        id:'qTemp', category:'Housing & Energy', type:'options', icon:'🌡️',
+        title:'How do you manage the temperature in your room?',
+        desc:'Heating and cooling account for nearly half of home energy use. Personal behaviors on top of central systems make a real difference.',
+        options:[
+            {text:'Eco: blankets when cold, fans instead of AC',                            icon:'💨', value:-150},
+            {text:'Normal: I let the house thermostat handle it',                            icon:'🌡️', value:0},
+            {text:'A little wasteful: space heater or window AC unit sometimes',             icon:'🔌', value:400},
+            {text:'Very wasteful: windows open while heat/AC runs, or 24/7 space heater',   icon:'🔥', value:900}
+        ]
+    },
+    {
+        id:'qScreens', category:'Housing & Energy', type:'slider', icon:'🎮',
+        title:'How many hours a day do you use large screens or gaming?',
+        desc:'TVs, gaming consoles (PS5, Xbox), and desktop computers use 10–50× more electricity than a phone. Include watching TV, gaming, and desktop computer time.',
+        min:0, max:12, default:3, unit:'hours / day',
+        // TV ~150W, gaming console ~150-200W avg. Using 150W avg × 365 × 0.82 lbs CO₂/kWh = 44.9 lbs/hr/yr → 45.
+        multiplier:45,
+        impactText: v => v===0 ? 'Zero large-screen time! ✓' : `≈ ${Math.round(v*45).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qStreaming', category:'Housing & Energy', type:'slider', icon:'📱',
+        title:'How many hours a day do you stream video?',
+        desc:'TikTok, YouTube, Netflix, Instagram Reels — data centers need massive electricity and cooling to serve you video 24/7. HD and 4K use significantly more than audio.',
+        min:0, max:12, default:3, unit:'hours / day',
+        // Streaming ≈ 0.036 kWh/hr device + 0.1 kWh/hr network/data center = 0.136 kWh/hr × 0.82 × 365 ≈ 40.7 lbs/hr/yr.
+        multiplier:40,
+        impactText: v => v===0 ? 'Zero streaming! ✓' : `≈ ${Math.round(v*40).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qAI', category:'Housing & Energy', type:'slider', icon:'🤖',
+        title:'How many AI prompts do you use per week?',
+        desc:'ChatGPT, Snapchat MyAI, Gemini — each AI response uses ~10× the electricity of a Google search, plus significant water to cool data center servers.',
+        min:0, max:200, default:10, unit:'prompts / week',
+        // Avg AI prompt ≈ 0.003 kWh × 0.82 lbs CO₂/kWh × 52 weeks = 0.128 lbs/prompt-per-week/yr → 7 lbs per weekly prompt.
+        multiplier:7,
+        impactText: v => v===0 ? 'Zero AI usage! ✓' : `≈ ${Math.round(v*7).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qCharging', category:'Housing & Energy', type:'options', icon:'🔌',
+        title:'How do you handle charging your devices?',
+        desc:'"Vampire power" — chargers left plugged in without a device still draw 1–2 watts continuously. Across millions of homes, this adds up to serious electricity waste.',
+        options:[
+            {text:'I unplug chargers when I\'m done using them',        icon:'⚡', value:0},
+            {text:'I unplug my phone but leave the cord in the wall',   icon:'🔋', value:100},
+            {text:'I leave devices plugged in 24/7 even at 100%',       icon:'🔌', value:250}
+        ]
+    },
+    // ── CONSUMERISM
+    {
+        id:'qClothes', category:'Consumerism', type:'slider', icon:'👕',
+        title:'How many new clothing items do you buy or receive per month?',
+        desc:'"Fast fashion" (Shein, Temu, H&M, ZARA) requires enormous water, chemical processing, and global shipping. The fashion industry produces ~10% of global CO₂ emissions.',
+        min:0, max:20, default:3, unit:'items / month',
+        // Avg garment ≈ 6.4 kg CO₂e = 14 lbs. × 12 months = 168 lbs per monthly item per year.
+        multiplier:168,
+        impactText: v => v===0 ? 'No new clothes this month! ✓' : `≈ ${Math.round(v*168).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qSecondhand', category:'Consumerism', type:'options', icon:'♻️',
+        title:'Do you shop secondhand?',
+        desc:'Thrift stores, Poshmark, Depop, and Facebook Marketplace prevent new manufacturing emissions. A secondhand garment has ~82% lower carbon footprint than buying new.',
+        options:[
+            {text:'Yes — most of my clothes and stuff come secondhand',  icon:'♻️', value:-500},
+            {text:'Sometimes — I mix new and used',                      icon:'🔄', value:-150},
+            {text:'Rarely — I mostly buy new',                           icon:'🏷️', value:0},
+            {text:'Never — I only buy new items',                        icon:'🛍️', value:200}
+        ]
+    },
+    {
+        id:'qPackages', category:'Consumerism', type:'slider', icon:'📦',
+        title:'How many online packages arrive just for you per month?',
+        desc:'Amazon, TikTok Shop, Shein hauls — each package means cardboard, plastic wrap, foam, and a delivery truck driving specifically to your house.',
+        min:0, max:20, default:3, unit:'packages / month',
+        // Avg package shipping ≈ 1.5 lbs CO₂ + packaging ~0.5 lbs = 2 lbs × 12 months = 24 lbs per monthly package per year.
+        multiplier:24,
+        impactText: v => v===0 ? 'No packages! ✓' : `≈ ${Math.round(v*24).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qPlastics', category:'Consumerism', type:'slider', icon:'🧴',
+        title:'How many single-use plastic bottles or cups do you use per week?',
+        desc:'Water bottles, Gatorades, Starbucks plastic cups — plastic is made from crude oil, and most of it ends up in landfills or the ocean rather than being recycled.',
+        min:0, max:30, default:5, unit:'single-use bottles / week',
+        // PET bottle production ≈ 0.2 lbs CO₂ each × 52 weeks = 10.4 lbs per weekly bottle per year.
+        multiplier:10,
+        impactText: v => v===0 ? 'Zero single-use plastic! ✓' : `≈ ${Math.round(v*10).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qCups', category:'Consumerism', type:'slider', icon:'🥤',
+        title:'How many heavy reusable cups do you own? (Stanley, Yeti, Hydro Flask)',
+        desc:'One steel tumbler takes ~40× the energy to make as a plastic bottle, but using it replaces hundreds of single-use cups over its life. Owning 10 tumblers you barely use defeats the purpose.',
+        min:0, max:20, default:2, unit:'reusable cups owned',
+        // Up to 2: zero penalty (eco-positive). Each beyond 2: ~20 lbs CO₂ amortized. Handled in calculateScore.
+        multiplier:0,
+        impactText: v => v<=2 ? 'Smart! Up to 2 is eco-positive ✓' : `${v-2} extra cup(s) above what you realistically need`
+    },
+    {
+        id:'qShoes', category:'Consumerism', type:'slider', icon:'👟',
+        title:'How many new pairs of shoes or sneakers do you get per year?',
+        desc:'Sneaker production is surprisingly carbon-heavy — rubber vulcanization, foam midsoles, synthetic materials, and global shipping from factories in Asia or Vietnam.',
+        min:0, max:15, default:3, unit:'pairs / year',
+        // Avg sneaker ≈ 30 lbs CO₂e (13.6 kg, per MIT study). Per pair per year.
+        multiplier:30,
+        impactText: v => v===0 ? 'No new shoes! ✓' : `≈ ${Math.round(v*30).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qPhone', category:'Consumerism', type:'options', icon:'📱',
+        title:'How often do you get a new cell phone?',
+        desc:'Mining lithium, cobalt, and rare-earth metals for phone batteries is one of the most destructive industrial processes on Earth in terms of both carbon and environmental damage.',
+        options:[
+            {text:'Every year — I always want the newest model',             icon:'📱', value:990},
+            {text:'Every 2 years',                                           icon:'📱', value:495},
+            {text:'Every 3–4 years',                                         icon:'📲', value:248},
+            {text:'I keep it until it breaks, or I buy refurbished',         icon:'♻️', value:75},
+            {text:"I don't have my own phone",                               icon:'🚫', value:0}
+        ]
+    },
+    {
+        id:'qBeauty', category:'Consumerism', type:'slider', icon:'🧴',
+        title:'How many new beauty, skincare, or hair products do you buy per month?',
+        desc:'The beauty industry is heavily reliant on single-use plastic packaging, complex chemical manufacturing, and global shipping — even for products labeled "natural" or "clean."',
+        min:0, max:15, default:2, unit:'products / month',
+        // Avg personal care product ≈ 1.1 lbs CO₂e (including packaging) × 12 months = 13.2 lbs per monthly product per year.
+        multiplier:13,
+        impactText: v => v===0 ? 'Zero beauty products! ✓' : `≈ ${Math.round(v*13).toLocaleString()} lbs CO₂/yr`
+    },
+    {
+        id:'qPetMeat', category:'Food', type:'options', icon:'🐾',
+        title:'Does your household have any pets?',
+        desc:'Pets — especially large dogs — have significant carbon footprints, mostly from meat-based pet food. A large dog can have a bigger annual food footprint than a small car.',
+        options:[
+            {text:'No pets',                                       icon:'🚫', value:0},
+            {text:'Cat or small dog (or fish, bird, hamster)',     icon:'🐱', value:200},
+            {text:'Medium-sized dog',                              icon:'🐕', value:500},
+            {text:'Large dog (Lab, Golden Retriever, Husky, etc)',icon:'🐶', value:900},
+            {text:'Multiple large dogs or multiple pets',          icon:'🐾', value:1600}
+        ]
+    }
+];
 
-        const questions = [
-            // FOOD
-            {
-                id: 'qMeatRed', category: 'Food', type: 'slider',
-                title: "How many meals per week include RED MEAT (beef or lamb)?",
-                desc: "Beef produces massive amounts of methane. Think about burgers, steaks, and tacos.",
-                min: 0, max: 14, default: 4, unit: "meals / week", icon: "fa-hamburger",
-                multiplier: 350 // lbs CO2 per year per weekly meal
-            },
-            {
-                id: 'qMeatOther', category: 'Food', type: 'slider',
-                title: "How many meals per week include POULTRY, PORK, or FISH?",
-                desc: "Chicken and pork have a smaller footprint than beef, but still higher than plants.",
-                min: 0, max: 21, default: 7, unit: "meals / week", icon: "fa-drumstick-bite",
-                multiplier: 120 
-            },
-            {
-                id: 'qTakeout', category: 'Food', type: 'slider',
-                title: "How many times a week do you get takeout or food delivery (DoorDash)?",
-                desc: "Delivery requires a car trip just for your food, plus loads of single-use containers.",
-                min: 0, max: 10, default: 2, unit: "deliveries / week", icon: "fa-motorcycle",
-                multiplier: 150 
-            },
-            {
-                id: 'qFoodWaste', category: 'Food', type: 'options',
-                title: "How much food gets thrown away at your house or lunch?",
-                desc: "Food waste sitting in landfills creates methane, a powerful greenhouse gas.",
-                options: [
-                    { text: "Almost none. We eat leftovers or compost.", icon: "fa-recycle", value: 0 },
-                    { text: "A little bit here and there.", icon: "fa-apple-whole", value: 400 },
-                    { text: "A lot. I rarely finish what's on my plate.", icon: "fa-trash-can", value: 1000 }
-                ]
-            },
-            // TRANSPORT
-            {
-                id: 'qCommuteMethod', category: 'Transportation', type: 'options',
-                title: "How do you usually get to school?",
-                desc: "Riding the bus or walking saves massive amounts of fuel compared to everyone driving separately.",
-                options: [
-                    { text: "Walk or pedal bike", icon: "fa-person-biking", value: 0 },
-                    { text: "E-bike or Electric Scooter", icon: "fa-bolt", value: 100 },
-                    { text: "Take the school bus", icon: "fa-bus", value: 300 },
-                    { text: "Carpool with others", icon: "fa-users-viewfinder", value: 600 },
-                    { text: "Driven in a car (just me and a parent)", icon: "fa-car", value: 1200 }
-                ]
-            },
-            {
-                id: 'qCommuteDist', category: 'Transportation', type: 'slider',
-                title: "Roughly how many MILES is your commute to school?",
-                desc: "If you walk, this is zero impact. E-bikes have a small impact. Cars add up quickly!",
-                min: 1, max: 20, default: 5, unit: "miles (one way)", icon: "fa-route",
-                multiplier: 80 
-            },
-            {
-                id: 'qCarType', category: 'Transportation', type: 'options',
-                title: "When you ride in a car, what type of vehicle is it usually?",
-                desc: "Larger, heavier vehicles burn significantly more gas than smaller or electric cars.",
-                options: [
-                    { text: "Electric Vehicle (EV) or Plug-in Hybrid", icon: "fa-charging-station", value: -400 },
-                    { text: "Standard Sedan or Small SUV", icon: "fa-car-side", value: 0 },
-                    { text: "Large SUV (like a Tahoe), Minivan, or Pickup Truck", icon: "fa-truck", value: 600 }
-                ]
-            },
-            {
-                id: 'qWeekendCar', category: 'Transportation', type: 'slider',
-                title: "On the weekend, how many HOURS do you spend riding in a car?",
-                desc: "Think about driving to sports tournaments, the mall, running errands, or visiting family.",
-                min: 0, max: 20, default: 4, unit: "hours / weekend", icon: "fa-car-side",
-                multiplier: 200 
-            },
-            {
-                id: 'qFlights', category: 'Transportation', type: 'slider',
-                title: "How many round-trip FLIGHTS have you taken in the last year?",
-                desc: "Airplanes burn massive amounts of fuel. Just one flight can double your entire yearly footprint.",
-                min: 0, max: 10, default: 1, unit: "round-trip flights", icon: "fa-plane-departure",
-                multiplier: 1500 
-            },
-            // HOUSING / ENERGY
-            {
-                id: 'qRoomSize', category: 'Housing & Energy', type: 'options',
-                title: "How big is your bedroom?",
-                desc: "Larger rooms take a lot more energy to heat in the winter and cool in the summer.",
-                options: [
-                    { text: "Small (about 10x10 ft - fits a twin bed and desk)", icon: "fa-bed", value: 200 },
-                    { text: "Medium (about 12x12 ft - fits a queen bed and dressers)", icon: "fa-door-open", value: 500 },
-                    { text: "Large (bigger than 15x15 ft - size of a master suite or 2-car garage)", icon: "fa-house", value: 1000 }
-                ]
-            },
-            {
-                id: 'qRoomShare', category: 'Housing & Energy', type: 'options',
-                title: "Do you share your bedroom with a sibling?",
-                desc: "Sharing a room cuts your heating, cooling, and lighting footprint in half!",
-                options: [
-                    { text: "Yes, I share my room.", icon: "fa-user-group", value: -400 }, 
-                    { text: "No, I have my own room.", icon: "fa-user", value: 0 }
-                ]
-            },
-            {
-                id: 'qTemp', category: 'Housing & Energy', type: 'options',
-                title: "How do you handle the temperature in your bedroom?",
-                desc: "Heating and cooling are usually the biggest energy drains in a house.",
-                options: [
-                    { text: "Eco: I use blankets/sweaters if cold, and fans if hot.", icon: "fa-leaf", value: -200 },
-                    { text: "Normal: I just let the house thermostat do its thing.", icon: "fa-thermometer-half", value: 0 },
-                    { text: "Wasteful: I use a space heater, or leave windows open while the AC/heat is on.", icon: "fa-temperature-arrow-up", value: 500 }
-                ]
-            },
-            {
-                id: 'qScreens', category: 'Housing & Energy', type: 'slider',
-                title: "How many HOURS a day do you spend using large screens/electronics?",
-                desc: "Include TVs, gaming consoles, and desktop computers (these use way more power than phones).",
-                min: 0, max: 12, default: 4, unit: "hours / day", icon: "fa-gamepad",
-                multiplier: 150
-            },
-            {
-                id: 'qStreaming', category: 'Housing & Energy', type: 'slider',
-                title: "How many HOURS a day do you stream video (TikTok, YouTube, Netflix)?",
-                desc: "Data centers that stream video require massive amounts of electricity to run and stay cool.",
-                min: 0, max: 12, default: 3, unit: "hours / day", icon: "fa-wifi",
-                multiplier: 40
-            },
-            {
-                id: 'qAI', category: 'Housing & Energy', type: 'slider',
-                title: "How many AI prompts (ChatGPT, Snapchat MyAI, etc.) do you use in a week?",
-                desc: "Generating an AI response uses up to 10 times the electricity and water of a standard Google search.",
-                min: 0, max: 100, default: 10, unit: "prompts / week", icon: "fa-robot",
-                multiplier: 4
-            },
-            {
-                id: 'qCharging', category: 'Housing & Energy', type: 'options',
-                title: "How do you handle charging your devices?",
-                desc: "Even when devices are 100% charged, plugged-in chargers pull 'vampire power'.",
-                options: [
-                    { text: "I actively unplug chargers when not using them.", icon: "fa-bolt", value: 0 },
-                    { text: "I unplug my phone, but leave the cord in the wall.", icon: "fa-battery-three-quarters", value: 300 },
-                    { text: "I leave my stuff plugged in 24/7.", icon: "fa-plug", value: 600 }
-                ]
-            },
-            // CONSUMERISM
-            {
-                id: 'qClothes', category: 'Consumerism', type: 'slider',
-                title: "How many NEW items of clothing do you get per month?",
-                desc: "'Fast fashion' requires massive amounts of water, shipping, and oil to produce.",
-                min: 0, max: 15, default: 3, unit: "items / month", icon: "fa-shirt",
-                multiplier: 180
-            },
-            {
-                id: 'qBeauty', category: 'Consumerism', type: 'slider',
-                title: "How many new skincare, makeup, or hair products do you buy a month?",
-                desc: "The beauty industry relies heavily on single-use plastics, complex chemical processing, and global shipping.",
-                min: 0, max: 15, default: 2, unit: "products / month", icon: "fa-pump-soap",
-                multiplier: 50
-            },
-            {
-                id: 'qPackages', category: 'Consumerism', type: 'slider',
-                title: "How many online packages (Amazon, TikTok Shop, etc.) arrive just for you in a month?",
-                desc: "Think about the cardboard, plastic wrap, and the delivery truck driving to your house.",
-                min: 0, max: 20, default: 3, unit: "packages / month", icon: "fa-box-open",
-                multiplier: 60
-            },
-            {
-                id: 'qCups', category: 'Consumerism', type: 'slider',
-                title: "How many heavy reusable cups (Stanley, Yeti, Hydroflask) do you own?",
-                desc: "Producing a steel cup takes 100x more energy than plastic. Owning one is eco-friendly. Owning a collection is a trend.",
-                min: 1, max: 20, default: 2, unit: "reusable cups", icon: "fa-mug-hot",
-                multiplier: 100 // Punishes having a massive collection
-            },
-            {
-                id: 'qPlastics', category: 'Consumerism', type: 'slider',
-                title: "How many single-use plastic bottles/cups do you use per week?",
-                desc: "Includes water bottles, Starbucks plastic cups, Gatorade bottles. Plastic is made from oil.",
-                min: 0, max: 30, default: 5, unit: "bottles / week", icon: "fa-bottle-water",
-                multiplier: 40
-            },
-            {
-                id: 'qShoes', category: 'Consumerism', type: 'slider',
-                title: "How many NEW pairs of shoes/sneakers do you get in a year?",
-                desc: "Manufacturing rubber, foam, and leather for shoes is a highly carbon-intensive process.",
-                min: 0, max: 15, default: 3, unit: "pairs / year", icon: "fa-shoe-prints",
-                multiplier: 70
-            },
-            {
-                id: 'qPhone', category: 'Consumerism', type: 'options',
-                title: "How often do you get a new cell phone?",
-                desc: "Manufacturing the battery and mining the metals for a smartphone creates a huge carbon spike.",
-                options: [
-                    { text: "Every year (I always want the newest model)", icon: "fa-mobile-screen-button", value: 800 },
-                    { text: "Every 2-3 years", icon: "fa-mobile-screen", value: 300 },
-                    { text: "I keep it until it breaks, or I buy refurbished", icon: "fa-recycle", value: 50 },
-                    { text: "I don't have my own cell phone", icon: "fa-ban", value: 0 }
-                ]
-            }
-        ];
+// ── PRE-MADE PROFILES
+// One value per question, in order. Sliders = numeric value. Options = array index.
+const influencerProfile = [10, 14, 3, 2, 5, 3, 4, 5, 8, 8, 4, 3, 3, 2, 1, 3, 8, 6, 80, 2, 15, 0, 12, 20, 10, 12, 0, 8, 3, 1];
+const ecoProfile         = [0,  2,  0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1, 0, 1, 1, 5,  0, 0,  0, 0,  0,  1,  2,  2, 1,  0, 0];
 
-        // Pre-made profiles updated for 23 questions
-        const influencerAnswers = [8, 10, 5, 2, 4, 10, 2, 12, 4, 2, 1, 2, 8, 8, 50, 2, 12, 10, 15, 12, 20, 10, 0]; 
-        const ecoTeenAnswers =    [0, 2,  0, 0, 0, 2,  0, 2,  0, 0, 0, 0, 2, 1, 0,  0, 1,  0,  1,  1,  1,  1,  2];
+// ── STATE
+let step = -1;
+let answers = new Array(questions.length).fill(null);
 
-        // --- STATE ---
-        let currentStep = -1; 
-        let userAnswers = new Array(questions.length).fill(null);
+// ── DOM
+const $content      = document.getElementById('content');
+const $progressWrap = document.getElementById('progressWrap');
+const $progressLbl  = document.getElementById('progressLabel');
+const $progressBar  = document.getElementById('progressBar');
+const $progressTxt  = document.getElementById('progressText');
+const $catPill      = document.getElementById('catPill');
 
-        // --- DOM ELEMENTS ---
-        const contentArea = document.getElementById('content-area');
-        const progressBar = document.getElementById('progress-bar');
-        const progressContainer = document.getElementById('progress-container');
+// ══════════════════════════════════════════════════════
+// SCORE CALCULATION  (used for final results only)
+// BASELINE is added here, not in the running ticker.
+// ══════════════════════════════════════════════════════
+function calculateScore() {
+    const ctx = buildCtx(questions.length - 1);
+    let total = BASELINE;
+    const cats = {Food:0, Transportation:0, 'Housing & Energy':0, Consumerism:0};
+    const report = [];
+    for (let i = 0; i < questions.length; i++) {
+        const q = questions[i];
+        const ans = answers[i];
+        if (ans === null) continue;
+        const {pts, ansText} = scorePts(q, ans, ctx);
+        total += pts;
+        cats[q.category] = (cats[q.category] || 0) + pts;
+        report.push({questionId:q.id, questionTitle:q.title, category:q.category, answerGiven:ansText, carbonLbsAdded:pts});
+    }
+    total = Math.max(total, 500);
+    return {total, cats, report};
+}
 
-        // --- CORE FUNCTIONS ---
+// ══════════════════════════════════════════════════════
+// RUNNING TICKER  (no BASELINE — shows only the impact
+// of choices answered so far, starting at 0.0)
+// ══════════════════════════════════════════════════════
+function getRunningTotal() {
+    const ctx = buildCtx(step);
+    let total = 0;
+    for (let i = 0; i <= step; i++) {
+        const q = questions[i];
+        const ans = answers[i];
+        if (ans === null) continue;
+        total += scorePts(q, ans, ctx).pts;
+    }
+    return (Math.max(total, 0) / 2000).toFixed(1);
+}
 
-        function renderIntro() {
-            progressContainer.classList.add('hidden');
-            contentArea.innerHTML = `
-                <div class="text-center fade-in py-4">
-                    <div class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 text-green-600 text-5xl shadow-inner">
-                        <i class="fa-solid fa-leaf"></i>
-                    </div>
-                    <h2 class="text-3xl font-extrabold mb-4 text-gray-800">Discover Your Impact</h2>
-                    <p class="text-gray-600 mb-8 max-w-lg mx-auto leading-relaxed">
-                        Climate change is a global issue, but it starts with our daily habits. Let's find out how much your personal choices—from the food you eat to your screen time—impact the planet.
-                    </p>
-                    
-                    <button onclick="startQuiz()" class="bg-green-600 hover:bg-green-700 text-white font-bold py-4 px-10 rounded-full shadow-lg hover:shadow-xl transition-all w-full md:w-auto text-lg mb-8">
-                        Start My Audit <i class="fa-solid fa-arrow-right ml-2"></i>
-                    </button>
-                    
-                    <div class="mt-4 border-t border-gray-200 pt-6">
-                        <p class="text-sm text-gray-500 mb-4 uppercase tracking-wider font-bold">Or analyze a sample profile:</p>
-                        <div class="flex flex-col gap-3 md:flex-row md:justify-center">
-                            <button onclick="runSampleProfile('influencer')" class="text-sm bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold py-2 px-5 rounded-xl transition-colors border border-purple-200 shadow-sm flex items-center justify-center">
-                                <i class="fa-solid fa-mobile-screen mr-2"></i> The "Influencer"
-                            </button>
-                            <button onclick="runSampleProfile('eco')" class="text-sm bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-semibold py-2 px-5 rounded-xl transition-colors border border-emerald-200 shadow-sm flex items-center justify-center">
-                                <i class="fa-solid fa-bicycle mr-2"></i> The "Eco-Teen"
-                            </button>
-                        </div>
-                    </div>
+// ── Shared context (car type + commute method) up to a given step limit
+function buildCtx(maxStep) {
+    const ciIdx = questions.findIndex(q => q.id === 'qCommuteMethod');
+    const ctIdx = questions.findIndex(q => q.id === 'qCarType');
+    const commuteMethod = (maxStep >= ciIdx && answers[ciIdx] !== null) ? answers[ciIdx] : null;
+    const carTypeAns    = (maxStep >= ctIdx && answers[ctIdx] !== null) ? answers[ctIdx] : null;
+    const carScaleMap = {0:0.3, 1:0.5, 2:0.65, 3:1.0, 4:1.7};
+    const carScale = carTypeAns !== null ? (carScaleMap[carTypeAns] ?? 1.0) : 1.0;
+    return {commuteMethod, carScale};
+}
+
+// ── Score a single question given its answer and context
+function scorePts(q, ans, ctx) {
+    let pts = 0, ansText = '';
+    if (q.type === 'options') {
+        pts = q.options[ans].value;
+        ansText = q.options[ans].text;
+    } else if (q.type === 'slider') {
+        ansText = `${ans} ${q.unit}`;
+        if (q.id === 'qCommuteDist') {
+            // Scale by both commute method and car type
+            const methodImpact = [0, 0.05, 0.25, 0.40, 0.55, 1.0];
+            const cm = ctx.commuteMethod;
+            const distScale = cm !== null ? (methodImpact[cm] ?? 1.0) : 1.0;
+            pts = Math.round(ans * 320 * distScale * (cm >= 3 ? ctx.carScale : 1));
+        } else if (q.id === 'qWeekendCar') {
+            pts = Math.round(ans * 180 * ctx.carScale);
+        } else if (q.id === 'qCups') {
+            // First 2 cups = eco-positive (replace plastic). Each beyond 2 = 20 lbs.
+            pts = Math.max(0, (ans - 2)) * 20;
+        } else {
+            pts = ans * q.multiplier;
+        }
+    }
+    return {pts, ansText};
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER: INTRO
+// ══════════════════════════════════════════════════════
+function renderIntro() {
+    step = -1;
+    $progressWrap.style.display = 'none';
+    $progressLbl.style.display  = 'none';
+    $content.innerHTML = `
+    <div class="intro fade-in" style="text-align:center">
+        <div class="intro-icon">🌿</div>
+        <h2>Discover Your Impact</h2>
+        <p>Climate change is shaped by everyday choices — the food you eat, how you get to school, how you shop, and how much you stream. This audit estimates your personal carbon footprint in tons of CO₂ per year.</p>
+        <button class="btn-primary" onclick="startQuiz()">🌱 Start My Audit</button>
+        <div class="divider">or try a sample profile</div>
+        <div class="sample-btns">
+            <button class="btn-sample" onclick="runProfile('influencer')">📱 The "Influencer"</button>
+            <button class="btn-sample" onclick="runProfile('eco')">🚲 The "Eco-Teen"</button>
+        </div>
+    </div>`;
+}
+
+function startQuiz() {
+    step = 0;
+    answers = new Array(questions.length).fill(null);
+    // Pre-fill slider defaults so Next is always enabled on slider questions
+    questions.forEach((q, i) => { if (q.type === 'slider') answers[i] = q.default; });
+    renderQuestion();
+}
+
+function runProfile(type) {
+    answers = type === 'influencer' ? [...influencerProfile] : [...ecoProfile];
+    renderResults(type);
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER: QUESTION
+// ══════════════════════════════════════════════════════
+function renderQuestion() {
+    const q   = questions[step];
+    const pct = (step / questions.length) * 100;
+    $progressWrap.style.display = 'block';
+    $progressLbl.style.display  = 'flex';
+    $progressBar.style.width    = `${pct}%`;
+    $progressTxt.textContent    = `Question ${step + 1} of ${questions.length}`;
+    $catPill.textContent        = q.category;
+
+    const ans = answers[step];
+    let inputHtml = '';
+
+    if (q.type === 'options') {
+        inputHtml = `<div class="options-list">
+            ${q.options.map((opt, i) => `
+            <button class="option-btn ${ans === i ? 'selected' : ''}" onclick="selectOption(${i})">
+                <div class="opt-icon">${opt.icon}</div>
+                <span class="opt-text">${opt.text}</span>
+            </button>`).join('')}
+        </div>`;
+    } else {
+        const val = (ans !== null ? ans : q.default);
+        inputHtml = `
+        <div class="slider-display">
+            <div class="slider-val" id="sliderVal">${val}</div>
+            <div class="slider-unit">${q.unit}</div>
+            <div class="slider-impact" id="sliderImpact">${q.impactText(val)}</div>
+        </div>
+        <input type="range" min="${q.min}" max="${q.max}" step="1" value="${val}" oninput="onSlider(this.value)">
+        <div class="slider-minmax"><span>${q.min}</span><span>${q.max}</span></div>`;
+    }
+
+    const canGo = answers[step] !== null;
+    const isLast = step === questions.length - 1;
+    const ticker = getRunningTotal();
+
+    $content.innerHTML = `
+    <div class="fade-in" style="display:flex;flex-direction:column;height:100%">
+        <div style="margin-bottom:16px">
+            <div class="q-num">Question ${step+1} / ${questions.length} &mdash; ${q.category}</div>
+            <h2 class="q-title">${q.icon} ${q.title}</h2>
+            <p class="q-desc">${q.desc}</p>
+        </div>
+        <div style="flex:1">${inputHtml}</div>
+        <div class="running-total">
+            <span class="rt-left"><span class="rt-icon">📊</span>Your choices so far add</span>
+            <span class="rt-val" id="rtVal">${ticker} tons CO₂/yr</span>
+        </div>
+        <div class="nav-row">
+            <button class="btn-back" onclick="prevQ()" ${step===0 ? 'style="visibility:hidden"' : ''}>
+                <span class="btn-back-arrow">&#8592;</span>
+                <span class="btn-back-label">Back</span>
+            </button>
+            <button class="btn-next" onclick="nextQ()" id="nextBtn" ${!canGo ? 'disabled' : ''}>
+                <span class="btn-next-label">${isLast ? 'See My Results' : 'Next'}</span>
+                <span class="btn-next-arrow">${isLast ? '✓' : '&#8594;'}</span>
+            </button>
+        </div>
+    </div>`;
+}
+
+function onSlider(val) {
+    answers[step] = parseInt(val);
+    document.getElementById('sliderVal').textContent    = val;
+    document.getElementById('sliderImpact').textContent = questions[step].impactText(parseInt(val));
+    document.getElementById('rtVal').textContent        = `${getRunningTotal()} tons CO₂/yr`;
+    const btn = document.getElementById('nextBtn');
+    if (btn) btn.disabled = false;
+}
+
+function selectOption(i) { answers[step] = i; renderQuestion(); }
+function prevQ() { if (step > 0) { step--; renderQuestion(); } }
+function nextQ() {
+    if (answers[step] === null) return;
+    if (step < questions.length - 1) { step++; renderQuestion(); }
+    else renderResults('user');
+}
+
+// ══════════════════════════════════════════════════════
+// RENDER: RESULTS
+// ══════════════════════════════════════════════════════
+function renderResults(profileType) {
+    $progressWrap.style.display = 'none';
+    $progressLbl.style.display  = 'none';
+    $content.scrollTop = 0;
+
+    const {total, cats, report} = calculateScore();
+    const tons    = parseFloat((total / 2000).toFixed(1));
+    const maxCat  = Object.entries(cats).reduce((a, b) => b[1] > a[1] ? b : a)[0];
+    const scaleMax = Math.max(tons, 20);
+
+    const globalPct = (4.5  / scaleMax * 100).toFixed(1);
+    const usPct     = (15   / scaleMax * 100).toFixed(1);
+    const userPct   = (tons / scaleMax * 100).toFixed(1);
+    const earths    = (tons / 4.5).toFixed(1);
+    const trees     = Math.round(tons * 41).toLocaleString();
+    const carMiles  = Math.round(tons * 2481).toLocaleString();
+    const sharks    = Math.max(1, Math.round(tons * 0.44)).toLocaleString();
+
+    const scoreColor = tons < 8 ? '#3aaa64' : tons < 13 ? '#f59e0b' : '#ef4444';
+    const scoreMood  = tons < 8 ? 'Below average — strong habits!' : tons < 13 ? 'Around the US teen average' : 'Above average — big room to improve';
+
+    const catColors = {Food:'#3aaa64', Transportation:'#f59e0b', 'Housing & Energy':'#60a5fa', Consumerism:'#c084fc'};
+    const catMax = Math.max(...Object.values(cats), 1);
+
+    const tipMap = {
+        Food:[
+            '<strong>Swap one beef meal per week</strong> for chicken, beans, lentils, or tofu. This single change saves ~340 lbs CO₂ per year.',
+            '<strong>Reduce food waste</strong> by planning meals, storing produce correctly, and eating leftovers. Nearly 40% of all food in the US is wasted.',
+            '<strong>Try plant-based milk</strong> like oat milk. Oat milk produces ~80% less CO₂ than cow\'s milk, and most people can\'t taste a difference in smoothies or cereal.'
+        ],
+        Transportation:[
+            '<strong>Walk or bike to school</strong> even once a week. Over a school year, that replaces ~36 car trips.',
+            '<strong>Combine car trips</strong> when running errands — multiple short separate trips produce far more emissions than one efficient route.',
+            '<strong>Talk to your family</strong> about the next car purchase being a hybrid or EV. That switch can cut transportation emissions by 50–70%.'
+        ],
+        'Housing & Energy':[
+            '<strong>Unplug chargers and power strips</strong> when not in use. "Vampire power" accounts for roughly 10% of home electricity use.',
+            '<strong>Use fans instead of AC</strong> on mild days — ceiling fans use ~98% less energy than central air conditioning.',
+            '<strong>Shorten showers by 2 minutes</strong> and use cold water for laundry. Water heating is a major energy consumer in most homes.'
+        ],
+        Consumerism:[
+            '<strong>Buy secondhand</strong> for clothing and shoes. Thrift stores, Depop, Poshmark, and Facebook Marketplace are all great and often cheaper.',
+            '<strong>Resist the trend cycle.</strong> Ten Stanleys defeats their eco purpose. Buy one, use it for years, and resist the urge to "collect" sustainability products.',
+            '<strong>Keep your phone longer.</strong> Going from a 1-year to a 3-year upgrade cycle cuts your phone-related carbon footprint by 66%.'
+        ]
+    };
+    const tips = tipMap[maxCat] || tipMap.Food;
+
+    const badge = profileType === 'influencer'
+        ? `<div style="text-align:center;margin-bottom:10px"><span class="profile-badge badge-inf">📱 Profile: The Influencer</span></div>`
+        : profileType === 'eco'
+        ? `<div style="text-align:center;margin-bottom:10px"><span class="profile-badge badge-eco">🌿 Profile: The Eco-Teen</span></div>`
+        : '';
+
+    $content.innerHTML = `
+    <div class="fade-in">
+        ${badge}
+        <div class="results-score">
+            <div class="score-number" style="color:${scoreColor}">${tons}</div>
+            <div class="score-unit">tons of CO₂ per year</div>
+            <div class="score-mood">${scoreMood}</div>
+        </div>
+
+        <div class="results-section">
+            <div class="section-title">What does ${tons} tons look like?</div>
+            <div class="facts-grid">
+                <div class="fact-card">
+                    <span class="fact-em">🦈</span>
+                    <div><strong>Weight</strong><span>Your annual emissions weigh as much as <b>${sharks} Great White Sharks</b> (avg 2,400 lbs each).</span></div>
                 </div>
-            `;
-        }
-
-        function startQuiz() {
-            currentStep = 0;
-            userAnswers = new Array(questions.length).fill(null);
-            progressContainer.classList.remove('hidden');
-            renderQuestion();
-        }
-
-        function runSampleProfile(type) {
-            userAnswers = type === 'influencer' ? [...influencerAnswers] : [...ecoTeenAnswers];
-            currentStep = questions.length;
-            progressContainer.classList.add('hidden');
-            renderResults(type);
-        }
-
-        function updateSliderValue(val, unit) {
-            document.getElementById('slider-value-display').innerText = `${val} ${unit}`;
-            userAnswers[currentStep] = parseInt(val);
-            // Ensure next button is enabled
-            const nextBtn = document.getElementById('next-btn');
-            nextBtn.classList.replace('bg-gray-200', 'bg-green-600');
-            nextBtn.classList.replace('text-gray-400', 'text-white');
-            nextBtn.classList.remove('cursor-not-allowed');
-            nextBtn.disabled = false;
-        }
-
-        function renderQuestion() {
-            const q = questions[currentStep];
-            const progress = ((currentStep) / questions.length) * 100;
-            progressBar.style.width = `${progress}%`;
-
-            let inputHtml = "";
-
-            if (q.type === 'options') {
-                inputHtml = q.options.map((opt, index) => {
-                    const isSelected = userAnswers[currentStep] === index;
-                    return `
-                        <button onclick="selectOption(${index})" class="option-card w-full text-left p-4 rounded-xl border-2 ${isSelected ? 'selected' : 'border-gray-200 bg-white hover:bg-gray-50'} mb-3 flex items-center">
-                            <div class="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mr-4 flex-shrink-0 text-gray-600 text-lg ${isSelected ? 'bg-green-100 text-green-600' : ''}">
-                                <i class="fa-solid ${opt.icon}"></i>
-                            </div>
-                            <span class="font-medium text-gray-800 text-lg ${isSelected ? 'text-green-800 font-bold' : ''}">${opt.text}</span>
-                        </button>
-                    `;
-                }).join('');
-            } else if (q.type === 'slider') {
-                // Initialize default if null
-                if (userAnswers[currentStep] === null) {
-                    userAnswers[currentStep] = q.default;
-                }
-                const currentVal = userAnswers[currentStep];
-                
-                inputHtml = `
-                    <div class="bg-white p-8 rounded-xl border-2 border-green-100 shadow-sm mt-4">
-                        <div class="text-center mb-8">
-                            <div class="text-5xl font-extrabold text-green-600 mb-2" id="slider-value-display">${currentVal} ${q.unit}</div>
-                        </div>
-                        <input type="range" min="${q.min}" max="${q.max}" step="1" value="${currentVal}" 
-                               oninput="updateSliderValue(this.value, '${q.unit}')" 
-                               class="w-full">
-                        <div class="flex justify-between text-gray-400 text-sm mt-2 font-medium">
-                            <span>${q.min}</span>
-                            <span>${q.max}</span>
-                        </div>
-                    </div>
-                `;
-            }
-
-            const canProceed = userAnswers[currentStep] !== null;
-
-            contentArea.innerHTML = `
-                <div class="fade-in flex-grow flex flex-col h-full">
-                    <div class="mb-3 flex items-center justify-between">
-                        <span class="text-sm font-bold text-green-600 tracking-wider uppercase bg-green-50 px-3 py-1 rounded-full"><i class="fa-solid ${q.icon} mr-2"></i> ${q.category}</span>
-                        <span class="text-sm font-bold text-gray-400">${currentStep + 1} / ${questions.length}</span>
-                    </div>
-                    
-                    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-3 leading-tight">${q.title}</h2>
-                    <p class="text-gray-500 mb-6 text-base">${q.desc}</p>
-                    
-                    <div class="flex-grow">
-                        ${inputHtml}
-                    </div>
-
-                    <div class="flex justify-between mt-8 pt-6 border-t border-gray-100">
-                        <button onclick="prevQuestion()" class="${currentStep === 0 ? 'invisible' : ''} text-gray-500 hover:text-gray-800 font-bold px-4 py-2 rounded-lg transition-colors flex items-center">
-                            <i class="fa-solid fa-arrow-left mr-2"></i> Back
-                        </button>
-                        <button onclick="nextQuestion()" id="next-btn" class="${canProceed ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-gray-200 text-gray-400 cursor-not-allowed'} font-bold py-3 px-8 rounded-xl transition-all shadow-md flex items-center text-lg" ${!canProceed ? 'disabled' : ''}>
-                            ${currentStep === questions.length - 1 ? 'See Results' : 'Next'} <i class="fa-solid ${currentStep === questions.length - 1 ? 'fa-chart-pie' : 'fa-arrow-right'} ml-2"></i>
-                        </button>
-                    </div>
+                <div class="fact-card">
+                    <span class="fact-em">🌳</span>
+                    <div><strong>Trees Needed</strong><span>It takes <b>${trees} mature trees</b> a full year to absorb this much CO₂.</span></div>
                 </div>
-            `;
-        }
-
-        function selectOption(index) {
-            userAnswers[currentStep] = index;
-            renderQuestion(); // Re-render to show selection and enable Next button
-        }
-
-        function prevQuestion() {
-            if (currentStep > 0) {
-                currentStep--;
-                renderQuestion();
-            }
-        }
-
-        function nextQuestion() {
-            if (userAnswers[currentStep] !== null) {
-                if (currentStep < questions.length - 1) {
-                    currentStep++;
-                    renderQuestion();
-                } else {
-                    renderResults('user');
-                }
-            }
-        }
-
-        function calculateScore() {
-            let totalScore = BASELINE_CO2;
-            let categoryBreakdown = {
-                'Food': 0,
-                'Transportation': 0,
-                'Housing & Energy': 0,
-                'Consumerism': 0
-            };
-            
-            let detailedReport = [];
-
-            for (let i = 0; i < questions.length; i++) {
-                const answer = userAnswers[i];
-                const q = questions[i];
-                let points = 0;
-                let answerText = "";
-
-                if (q.type === 'options') {
-                    points = q.options[answer].value;
-                    answerText = q.options[answer].text;
-                } else if (q.type === 'slider') {
-                    points = answer * q.multiplier;
-                    answerText = `${answer} ${q.unit}`;
-                }
-
-                // Special edge case: If they walk/bike or e-bike to school, adjust commute distance impact
-                if (q.id === 'qCommuteDist') { 
-                    const methodIndex = questions.findIndex(quest => quest.id === 'qCommuteMethod');
-                    const methodAnswer = userAnswers[methodIndex]; 
-                    if (methodAnswer === 0) { // Walk/Pedal Bike
-                        points = 0; 
-                    } else if (methodAnswer === 1) { // E-bike
-                        points = answer * 10; // Much lower impact per mile than a car
-                    }
-                }
-
-                totalScore += points;
-                categoryBreakdown[q.category] += points;
-                
-                // Save readable data for the teacher's LMS
-                detailedReport.push({
-                    questionId: q.id,
-                    questionTitle: q.title,
-                    category: q.category,
-                    answerGiven: answerText,
-                    carbonPointsAdded: points
-                });
-            }
-
-            return { totalScore, categoryBreakdown, detailedReport };
-        }
-
-        function renderResults(profileType) {
-            progressContainer.classList.add('hidden');
-            contentArea.scrollTo(0,0);
-            
-            const { totalScore, categoryBreakdown } = calculateScore();
-            
-            // Convert lbs to Tons
-            const tonsCO2 = (totalScore / 2000).toFixed(1);
-            
-            // Find highest category
-            let highestCategory = Object.keys(categoryBreakdown).reduce((a, b) => categoryBreakdown[a] > categoryBreakdown[b] ? a : b);
-
-            // Calculate striking facts
-            const sharks = Math.max(1, Math.round(tonsCO2)); // 1 ton = roughly 1 great white shark
-            const houses = Math.max(1, Math.round(tonsCO2)); // 1 ton of CO2 gas fills ~1 two-story house
-            const earths = Math.max(0.5, (tonsCO2 / 4.5)).toFixed(1); // Global sustainability target is ~4.5 tons
-            const trees = Math.round(tonsCO2 * 41).toLocaleString(); // 1 ton = ~41 mature trees to absorb in a year
-            const carMiles = Math.round(tonsCO2 * 2500).toLocaleString(); // 1 ton = ~2,500 miles driven
-
-            let profileBadge = "";
-            if(profileType === 'influencer') {
-                profileBadge = `<div class="bg-purple-100 text-purple-800 text-sm font-bold px-4 py-2 rounded-full mb-6 inline-block mx-auto"><i class="fa-solid fa-user-tag mr-2"></i> Viewing Profile: The Influencer</div>`;
-            } else if (profileType === 'eco') {
-                profileBadge = `<div class="bg-emerald-100 text-emerald-800 text-sm font-bold px-4 py-2 rounded-full mb-6 inline-block mx-auto"><i class="fa-solid fa-leaf mr-2"></i> Viewing Profile: The Eco-Teen</div>`;
-            }
-
-            // Generate comparison bars width
-            const maxComparison = Math.max(20, tonsCO2); // Scale max to 20 or user's score
-            const usAvgWidth = (15 / maxComparison) * 100;
-            const globalAvgWidth = (4.5 / maxComparison) * 100;
-            const userWidth = (tonsCO2 / maxComparison) * 100;
-
-            let colorClass = tonsCO2 < 10 ? "text-green-600" : (tonsCO2 < 16 ? "text-yellow-500" : "text-red-500");
-
-            contentArea.innerHTML = `
-                <div class="fade-in pb-4">
-                    <div class="text-center">
-                        ${profileBadge}
-                        <h2 class="text-2xl font-bold text-gray-800 mb-1">Your Carbon Footprint</h2>
-                        <p class="text-gray-500 text-sm mb-6">Estimated Greenhouse Gas Emissions per Year</p>
-                        
-                        <div class="inline-block relative mb-8">
-                            <div class="text-7xl font-black ${colorClass} tracking-tighter">${tonsCO2}</div>
-                            <div class="text-xl font-bold text-gray-400 uppercase tracking-widest mt-1">Tons of CO₂</div>
-                        </div>
-                    </div>
-
-                    <!-- Striking Facts Grid -->
-                    <div class="mb-8">
-                        <h3 class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-3 text-center">What does ${tonsCO2} tons look like?</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="stat-card flex items-center text-left">
-                                <div class="text-4xl text-blue-400 w-16 text-center"><i class="fa-solid fa-water"></i></div>
-                                <div>
-                                    <div class="font-bold text-gray-800 text-lg">Weight Equivalent</div>
-                                    <div class="text-sm text-gray-600">Your carbon weighs as much as <strong>${sharks} Great White Sharks</strong>.</div>
-                                </div>
-                            </div>
-                            <div class="stat-card flex items-center text-left">
-                                <div class="text-4xl text-yellow-500 w-16 text-center"><i class="fa-solid fa-house-chimney-window"></i></div>
-                                <div>
-                                    <div class="font-bold text-gray-800 text-lg">Volume Equivalent</div>
-                                    <div class="text-sm text-gray-600">As a gas, it would completely fill <strong>${houses} two-story houses</strong>.</div>
-                                </div>
-                            </div>
-                            <div class="stat-card flex items-center text-left">
-                                <div class="text-4xl text-green-500 w-16 text-center"><i class="fa-solid fa-tree"></i></div>
-                                <div>
-                                    <div class="font-bold text-gray-800 text-lg">Tree Offset</div>
-                                    <div class="text-sm text-gray-600">It would take <strong>${trees} mature trees</strong> a full year to absorb this.</div>
-                                </div>
-                            </div>
-                            <div class="stat-card flex items-center text-left">
-                                <div class="text-4xl text-gray-500 w-16 text-center"><i class="fa-solid fa-car-rear"></i></div>
-                                <div>
-                                    <div class="font-bold text-gray-800 text-lg">Car Equivalent</div>
-                                    <div class="text-sm text-gray-600">This equals driving a gas car for <strong>${carMiles} miles</strong>.</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Comparison Chart -->
-                    <div class="bg-gray-50 rounded-2xl p-5 border border-gray-100 mb-8">
-                        <h3 class="font-bold text-gray-800 mb-4 flex items-center"><i class="fa-solid fa-chart-bar mr-2 text-gray-400"></i> Global Comparison</h3>
-                        
-                        <div class="mb-3">
-                            <div class="flex justify-between text-xs font-bold mb-1 text-gray-600">
-                                <span>Global Average</span> <span>4.5 Tons</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div class="bg-green-400 h-3 rounded-full" style="width: ${globalAvgWidth}%"></div>
-                            </div>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <div class="flex justify-between text-xs font-bold mb-1 text-gray-600">
-                                <span>Average US Teen</span> <span>~15.0 Tons</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div class="bg-yellow-400 h-3 rounded-full" style="width: ${usAvgWidth}%"></div>
-                            </div>
-                        </div>
-
-                        <div class="mb-2">
-                            <div class="flex justify-between text-xs font-bold mb-1 ${colorClass}">
-                                <span>You (This Profile)</span> <span>${tonsCO2} Tons</span>
-                            </div>
-                            <div class="w-full bg-gray-200 rounded-full h-3">
-                                <div class="${tonsCO2 < 10 ? 'bg-green-600' : (tonsCO2 < 16 ? 'bg-yellow-500' : 'bg-red-500')} h-3 rounded-full" style="width: ${userWidth}%"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Earth Overshoot -->
-                    <div class="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-xl mb-8">
-                        <h3 class="font-bold text-blue-900 mb-1 flex items-center"><i class="fa-solid fa-globe mr-2"></i> The "Earth" Metric</h3>
-                        <p class="text-blue-800 text-sm">
-                            If everyone on the planet lived exactly like this profile, we would need <strong>${earths} Earths</strong> to absorb the carbon pollution safely.
-                        </p>
-                    </div>
-
-                    <!-- Highest Category for Reflection -->
-                    <div class="text-center mb-8 border-t border-b border-gray-100 py-6">
-                        <p class="text-gray-500 text-sm font-bold uppercase tracking-wider mb-2">Highest Emitting Category:</p>
-                        <p class="text-2xl font-black text-gray-800">${highestCategory}</p>
-                        <p class="text-xs text-gray-400 mt-2 italic">Make sure to note this down for your written reflection!</p>
-                    </div>
-
-                    <!-- Actions -->
-                    <div class="flex flex-col md:flex-row gap-4 w-full">
-                        <button onclick="renderIntro()" class="md:w-1/3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-4 rounded-xl transition-colors border border-gray-200">
-                            <i class="fa-solid fa-rotate-left mr-2"></i> Start Over
-                        </button>
-                        <button onclick="submitToLMS('${profileType}')" id="submit-btn" class="md:w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-xl transition-all shadow-lg shadow-blue-200/50 flex items-center justify-center text-lg hover:-translate-y-1">
-                            <span>Submit Data to Teacher</span> <i class="fa-solid fa-paper-plane ml-3"></i>
-                        </button>
-                    </div>
+                <div class="fact-card">
+                    <span class="fact-em">🚗</span>
+                    <div><strong>Driving Equivalent</strong><span>Equals driving a gas car <b>${carMiles} miles</b> (EPA figure).</span></div>
                 </div>
-            `;
+                <div class="fact-card">
+                    <span class="fact-em">🌍</span>
+                    <div><strong>Planet Pressure</strong><span>If everyone lived this way, we'd need <b>${earths} Earths</b> to absorb the carbon safely.</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="section-title">Global Comparison</div>
+            <div class="cmp-row">
+                <div class="cmp-labels"><span style="color:var(--muted)">🌐 Global average (sustainability target)</span><span style="color:var(--muted)">4.5 tons</span></div>
+                <div class="cmp-track"><div class="cmp-fill" style="width:${globalPct}%;background:#3aaa64"></div></div>
+            </div>
+            <div class="cmp-row">
+                <div class="cmp-labels"><span style="color:var(--muted)">🇺🇸 Average US teenager</span><span style="color:var(--muted)">~15 tons</span></div>
+                <div class="cmp-track"><div class="cmp-fill" style="width:${usPct}%;background:#f59e0b"></div></div>
+            </div>
+            <div class="cmp-row">
+                <div class="cmp-labels"><span style="color:${scoreColor};font-weight:800">⬤ You</span><span style="color:${scoreColor};font-weight:800">${tons} tons</span></div>
+                <div class="cmp-track"><div class="cmp-fill" style="width:${userPct}%;background:${scoreColor}"></div></div>
+            </div>
+        </div>
+
+        <div class="results-section">
+            <div class="section-title">Breakdown by Category</div>
+            ${Object.entries(cats).map(([cat, val]) => {
+                const t = (val / 2000).toFixed(2);
+                const w = ((val / catMax) * 100).toFixed(1);
+                return `<div class="cat-row">
+                    <span class="cat-name">${cat}</span>
+                    <div class="cat-track"><div class="cat-fill" style="width:${w}%;background:${catColors[cat]}"></div></div>
+                    <span class="cat-val">${t}t</span>
+                </div>`;
+            }).join('')}
+            <p style="font-size:0.72rem;color:var(--muted);margin-top:8px;font-style:italic">Note: scores include a 1.1-ton baseline for shared household infrastructure (water heating, shared lighting, internet) that is split among all household members.</p>
+        </div>
+
+        <div class="reflection-box">
+            <h3>📝 For Your Written Reflection</h3>
+            <p>Your highest-emitting category is <strong>${maxCat}</strong>. Use these questions to guide your writing:</p>
+            <ul>
+                <li>Why do you think <em>${maxCat}</em> is your biggest impact area?</li>
+                <li>Which specific answer surprised you the most, and why?</li>
+                <li>Name one habit you could realistically change in the next month.</li>
+                <li>Why is reducing a personal carbon footprint difficult, even when people genuinely care?</li>
+            </ul>
+        </div>
+
+        <div class="results-section">
+            <div class="section-title">3 Actions You Can Actually Take</div>
+            <div class="tips-list">
+                ${tips.map(t => `<div class="tip-item">✅ ${t}</div>`).join('')}
+            </div>
+        </div>
+
+        <div class="results-actions">
+            <button class="btn-restart" onclick="renderIntro()">↺ Start Over</button>
+            <button class="btn-submit" id="submitBtn" onclick="submitToLMS('${profileType}')">
+                Submit to Teacher &nbsp;&#10148;
+            </button>
+        </div>
+    </div>`;
+}
+
+// ══════════════════════════════════════════════════════
+// LMS SUBMISSION
+// ══════════════════════════════════════════════════════
+function submitToLMS(profileType) {
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Submitting…';
+    btn.disabled = true;
+
+    const {total, cats, report} = calculateScore();
+    const tonsCO2 = parseFloat((total / 2000).toFixed(1));
+    const highestCategory = Object.entries(cats).reduce((a, b) => b[1] > a[1] ? b : a)[0];
+
+    const payload = {
+        action: 'SIM_COMPLETE',
+        simData: {
+            carbonTons: tonsCO2,
+            highestCategory,
+            categoryBreakdown: Object.fromEntries(
+                Object.entries(cats).map(([k, v]) => [k, parseFloat((v / 2000).toFixed(2))])),
+            profileUsed: profileType === 'user' ? 'Self' : profileType,
+            detailedAnswers: report,
+            rawAnswerIndices: answers
         }
+    };
+    window.parent.postMessage(payload, '*');
 
-        function submitToLMS(profileType) {
-            const btn = document.getElementById('submit-btn');
-            btn.innerHTML = `<span>Submitting...</span> <i class="fa-solid fa-spinner fa-spin ml-3"></i>`;
-            btn.classList.replace('bg-blue-600', 'bg-blue-400');
-            btn.disabled = true;
+    setTimeout(() => {
+        btn.textContent = 'Submitted! ✓';
+        btn.classList.add('done');
+    }, 700);
+}
 
-            // Recalculate to get the detailed reporting data
-            const { totalScore, categoryBreakdown, detailedReport } = calculateScore();
-            const tonsCO2 = parseFloat((totalScore / 2000).toFixed(1));
-            const highestCategory = Object.keys(categoryBreakdown).reduce((a, b) => categoryBreakdown[a] > categoryBreakdown[b] ? a : b);
-
-            // Prepare data bundle exactly as requested, now with highly readable answers
-            const payload = {
-                action: 'SIM_COMPLETE',
-                simData: {
-                    carbonTons: tonsCO2,
-                    highestCategory: highestCategory,
-                    profileUsed: profileType === 'user' ? 'Self' : profileType,
-                    detailedAnswers: detailedReport, // Array of { question, answerGiven, pointsAdded }
-                    rawAnswerIndices: userAnswers
-                }
-            };
-
-            // Post message to parent LMS
-            window.parent.postMessage(payload, '*');
-
-            // Visual feedback for student
-            setTimeout(() => {
-                btn.innerHTML = `<span>Submitted Successfully!</span> <i class="fa-solid fa-check ml-3"></i>`;
-                btn.classList.replace('bg-blue-400', 'bg-green-600');
-                btn.classList.replace('hover:-translate-y-1', 'cursor-default');
-            }, 800);
-        }
-
-        // Initialize App
-        renderIntro();
-
-    </script>
+// Boot
+renderIntro();
+</script>
 </body>
 </html>
