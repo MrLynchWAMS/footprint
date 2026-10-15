@@ -1,835 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Climate Impact — Carbon Footprint Calculator</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        serif: ['DM Serif Display', 'serif'],
-                    },
-                    colors: {
-                        brand: {
-                            50: '#f0fdf4',
-                            100: '#dcfce7',
-                            500: '#22c55e',
-                            600: '#16a34a',
-                            700: '#15803d',
-                            800: '#166534',
-                            900: '#14532d',
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        body {
-            background-color: #f0fdf4;
-            background-image: radial-gradient(circle at top right, #dcfce7 0%, transparent 40%),
-                              radial-gradient(circle at bottom left, #dcfce7 0%, transparent 40%);
-            background-attachment: fixed;
-        }
-        .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        /* Custom Range Slider Styling */
-        input[type=range] {
-            -webkit-appearance: none;
-            width: 100%;
-            background: transparent;
-        }
-        input[type=range]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            height: 32px;
-            width: 32px;
-            border-radius: 50%;
-            background: #16a34a;
-            cursor: pointer;
-            margin-top: -12px;
-            box-shadow: 0 4px 10px rgba(22, 163, 74, 0.3);
-            border: 3px solid white;
-            transition: transform 0.1s;
-        }
-        input[type=range]::-webkit-slider-thumb:active {
-            transform: scale(1.15);
-        }
-        input[type=range]::-webkit-slider-runnable-track {
-            width: 100%;
-            height: 8px;
-            cursor: pointer;
-            background: #e5e7eb;
-            border-radius: 999px;
-        }
-        input[type=range]:focus {
-            outline: none;
-        }
-        .option-card {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .option-card:hover {
-            transform: translateY(-2px);
-        }
-        .option-card.selected {
-            background-color: #f0fdf4;
-            border-color: #16a34a;
-            box-shadow: 0 0 0 2px rgba(22, 163, 74, 0.2);
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Climate Impact — Carbon Footprint Calculator</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script>tailwind.config={theme:{extend:{fontFamily:{sans:['Inter','sans-serif'],serif:['DM Serif Display','serif']},colors:{brand:{50:'#f0fdf4',100:'#dcfce7',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'}}}}}</script>
+<style>
+body{background:#f0fdf4;background-image:radial-gradient(circle at top right,#dcfce7 0%,transparent 40%),radial-gradient(circle at bottom left,#dcfce7 0%,transparent 40%);background-attachment:fixed}
+.fade-in{animation:fi .4s ease-out forwards}@keyframes fi{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+input[type=range]{-webkit-appearance:none;width:100%;background:transparent}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;height:32px;width:32px;border-radius:50%;background:#16a34a;cursor:pointer;margin-top:-12px;border:3px solid #fff;box-shadow:0 4px 10px rgba(22,163,74,.3)}
+input[type=range]::-moz-range-thumb{height:28px;width:28px;border-radius:50%;background:#16a34a;border:3px solid #fff}
+input[type=range]::-webkit-slider-runnable-track{height:8px;background:#e5e7eb;border-radius:999px}
+.opt{transition:all .2s}.opt:hover{transform:translateY(-2px)}.opt.sel{background:#f0fdf4;border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.2)}
+</style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4 md:p-6 text-gray-800">
-
-    <div id="app-container" class="w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden min-h-[600px] flex flex-col relative border border-gray-100">
-        <!-- Header -->
-        <div class="bg-brand-900 text-white p-6 relative overflow-hidden shrink-0">
-            <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-white opacity-5 rounded-full blur-2xl"></div>
-            <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-2">
-                <div>
-                    <h1 class="font-serif text-3xl md:text-4xl text-white tracking-wide">
-                        🌿 My <span class="text-brand-500 italic">Climate</span> Impact
-                    </h1>
-                    <p class="text-brand-100 text-sm font-semibold tracking-wider uppercase mt-2 opacity-80">8th Grade Carbon Footprint Audit</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Progress Bar -->
-        <div id="progress-container" class="w-full bg-gray-100 h-2 hidden shrink-0">
-            <div id="progress-bar" class="bg-brand-500 h-2 transition-all duration-500 ease-out w-0 relative">
-                <div class="absolute right-0 top-0 bottom-0 w-10 bg-white opacity-20 blur"></div>
-            </div>
-        </div>
-
-        <!-- Dynamic Content Area -->
-        <div id="content-area" class="p-6 md:p-8 flex-grow flex flex-col overflow-y-auto">
-            <!-- Content gets injected here via JS -->
-        </div>
-    </div>
+<div class="w-full max-w-3xl bg-white rounded-3xl shadow-2xl overflow-hidden min-h-[600px] flex flex-col border border-gray-100">
+  <div class="bg-brand-900 text-white p-6 shrink-0">
+    <h1 class="font-serif text-3xl md:text-4xl">🌿 My <span class="text-brand-500 italic">Climate</span> Impact</h1>
+    <p class="text-brand-100 text-sm font-semibold tracking-wider uppercase mt-2 opacity-80">8th Grade Carbon Footprint Audit</p>
+  </div>
+  <div id="pc" class="w-full bg-gray-100 h-2 hidden shrink-0"><div id="bar" class="bg-brand-500 h-2 transition-all duration-500 w-0"></div></div>
+  <div id="ca" class="p-6 md:p-8 flex-grow flex flex-col overflow-y-auto"></div>
+</div>
 
 <script>
-// ═══════════════════════════════════════════════
-// CONSTANTS & LOGIC
-// ═══════════════════════════════════════════════
-const BASELINE = 2200; // Shared home baseline, added to final score
+// ═══ CONFIG ═══════════════════════════════════════════════════════════
+const SIM_VERSION = '2.0';
+const PARENT_ORIGIN = 'https://custom.scienceclass.rocks'; // IteratED wrapper origin
+// Calibration (metric tons CO2e per person per year). Set and cite your sources here.
+// BASELINE is derived below so that the "average" sample profile scores exactly TARGET_AVG_TONS.
+const TARGET_AVG_TONS = 15;     // typical American, all sources
+const GLOBAL_AVG_TONS = 4.7;    // world per-person average
+const SUSTAINABLE_TONS = 2.3;   // commonly cited climate-aligned per-person share
+const CATS = ['Food','Transportation','Housing & Energy','Digital Life','Consumerism'];
+const CARS=[.3,.5,.65,1,1.7], MODE=[0,.05,.2,.33,.5,1], SECOND=[.3,.7,1,1.15], KG_PER_MILE=145;
 
-const questions = [
-    // ── FOOD
-    {
-        id:'qMeatRed', category:'Food', type:'slider', icon:'🍔',
-        title:'How many meals a week include red meat?',
-        desc:'Beef and lamb are extremely carbon-intensive — cattle produce methane and require massive land use.',
-        min:0, max:14, default:4, unit:'meals / week',
-        multiplier:340,
-        impactText: v => v===0 ? 'Zero impact! 🌱' : `≈ ${Math.round(v*340).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qMeatOther', category:'Food', type:'slider', icon:'🍗',
-        title:'How many meals a week include chicken, pork, or fish?',
-        desc:'These have a smaller footprint than beef but still higher than plants.',
-        min:0, max:21, default:7, unit:'meals / week',
-        multiplier:41,
-        impactText: v => v===0 ? 'Zero impact! 🌱' : `≈ ${Math.round(v*41).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qDairy', category:'Food', type:'options', icon:'🥛',
-        title:'How much dairy do you consume?',
-        desc:'Milk, cheese, yogurt, and ice cream come from cows. Dairy is a major hidden carbon source.',
-        options:[
-            {text:'None — I use oat milk or other plant-based alternatives', value:0},
-            {text:'A little — occasional cheese or yogurt', value:300},
-            {text:'Moderate — daily milk and regular cheese use', value:750},
-            {text:'A lot — ice cream, milkshakes, cheese on everything', value:1400}
-        ]
-    },
-    {
-        id:'qFoodWaste', category:'Food', type:'options', icon:'🗑️',
-        title:'How much food gets wasted at your house?',
-        desc:'Food rotting in landfills produces methane. The US wastes 30–40% of all food produced.',
-        options:[
-            {text:'Almost none — we eat leftovers and compost scraps', value:0},
-            {text:'A little — some stuff occasionally goes bad', value:250},
-            {text:'A fair amount — leftovers often get tossed', value:600},
-            {text:'A lot — food gets thrown away nearly every day', value:1100}
-        ]
-    },
-    {
-        id:'qTakeout', category:'Food', type:'slider', icon:'🛵',
-        title:'How many times a week do you get takeout or delivery?',
-        desc:'DoorDash and Uber Eats require a dedicated car trip, plus single-use containers.',
-        min:0, max:10, default:2, unit:'deliveries / week',
-        multiplier:230,
-        impactText: v => v===0 ? 'Zero impact! 🌱' : `≈ ${Math.round(v*230).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qCaffeine', category:'Food', type:'options', icon:'☕',
-        title:"What's your coffee, energy drink, or boba tea habit?",
-        desc:'Daily drive-through runs involve dairy, disposable cups, a car trip, and global shipping.',
-        options:[
-            {text:"I don't drink coffee, boba, or specialty drinks", value:0},
-            {text:'Home-brewed coffee/tea with a reusable mug', value:50},
-            {text:'Occasional coffee shop or drive-through', value:200},
-            {text:'Daily Starbucks, Dutch Bros, boba, or similar', value:650}
-        ]
-    },
-    // ── TRANSPORTATION
-    {
-        id:'qCarType', category:'Transportation', type:'options', icon:'🚗',
-        title:'When you ride in a car, what type is it usually?',
-        desc:'A large SUV or truck burns 2–3× the fuel of a small sedan. EVs have far lower emissions.',
-        options:[
-            {text:'Full Electric Vehicle (EV)', value:-400},
-            {text:'Plug-in Hybrid (PHEV)', value:-150},
-            {text:'Regular Hybrid (like a Prius)', value:0},
-            {text:'Small or midsize sedan or SUV', value:400},
-            {text:'Large SUV, Minivan, or Pickup Truck', value:1100}
-        ]
-    },
-    {
-        id:'qCommuteMethod', category:'Transportation', type:'options', icon:'🏫',
-        title:'How do you usually get to school?',
-        desc:'Your daily commute happens ~180 days per year. The method makes a massive cumulative difference.',
-        options:[
-            {text:'Walk or pedal bike', value:0},
-            {text:'E-bike or electric scooter', value:60},
-            {text:'School bus', value:280},
-            {text:'Carpool (3 or more people in the car)', value:450},
-            {text:'Carpool (just you and one other person)', value:750},
-            {text:'Private drop-off (you and a parent/guardian)', value:1500}
-        ]
-    },
-    {
-        id:'qCommuteDist', category:'Transportation', type:'slider', icon:'📍',
-        title:'How many miles is your school commute one-way?',
-        desc:'Distance multiplies the impact. Walking 10 miles is zero emissions; driving 10 miles adds up fast.',
-        min:0, max:20, default:5, unit:'miles (one way)',
-        multiplier:0, // Logic handles scaling below
-        impactText: v => `Impact varies heavily based on your commute method`
-    },
-    {
-        id:'qWeekendCar', category:'Transportation', type:'slider', icon:'🗺️',
-        title:'On a typical weekend, how many hours do you ride in a car?',
-        desc:'Think mall trips, sports practices, errands, and restaurant outings.',
-        min:0, max:20, default:4, unit:'hours / weekend',
-        multiplier:350, 
-        impactText: v => v===0 ? 'Zero weekend driving! 🌱' : `≈ ${Math.round(v*350).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qFlights', category:'Transportation', type:'options', icon:'✈️',
-        title:'How many round-trip flights did you take in the last year?',
-        desc:'Flying is one of the most carbon-intensive activities per hour.',
-        options:[
-            {text:'None', value:0},
-            {text:'1 short flight (under 2 hrs)', value:1100},
-            {text:'2–3 short flights', value:2800},
-            {text:'1 long flight (cross-country or international)', value:3500},
-            {text:'2+ long flights, or I fly frequently', value:7500}
-        ]
-    },
-    {
-        id:'qSports', category:'Transportation', type:'options', icon:'🏆',
-        title:'How far do you travel for sports or activities?',
-        desc:'Club sports and tournaments can mean 3–5+ hours of driving per weekend.',
-        options:[
-            {text:"I don't do organized sports or travel activities", value:0},
-            {text:'Local only — under 15 minutes away', value:300},
-            {text:'Regional — occasional 30–60 min drives', value:800},
-            {text:'Travel team — frequent multi-hour drives/overnights', value:2000}
-        ]
-    },
-    // ── HOUSING & ENERGY
-    {
-        id:'qHouseType', category:'Housing & Energy', type:'options', icon:'🏠',
-        title:'What type of home do you live in?',
-        desc:'Larger homes require dramatically more energy to heat and cool.',
-        options:[
-            {text:'Apartment or condo', value:0},
-            {text:'Townhouse or rowhouse', value:400},
-            {text:'Small detached house', value:900},
-            {text:'Large detached house', value:1800}
-        ]
-    },
-    {
-        id:'qHomeEnergy', category:'Housing & Energy', type:'options', icon:'☀️',
-        title:'Does your home use renewable energy?',
-        desc:'Solar panels or a green energy subscription can dramatically cut your footprint.',
-        options:[
-            {text:'Yes — we have solar panels or 100% green energy', value:-600},
-            {text:"Not sure — probably standard utility power", value:0},
-            {text:'No — and we use gas for heating/cooking', value:700}
-        ]
-    },
-    {
-        id:'qRoomShare', category:'Housing & Energy', type:'options', icon:'👥',
-        title:'Do you share your bedroom with a sibling?',
-        desc:'Sharing a room cuts your portion of heating, cooling, and lighting footprint in half.',
-        options:[
-            {text:'Yes, I share my room', value:-300},
-            {text:'No, I have my own room', value:0}
-        ]
-    },
-    {
-        id:'qTemp', category:'Housing & Energy', type:'options', icon:'🌡️',
-        title:'How do you manage the temperature in your room?',
-        desc:'Heating and cooling account for nearly half of home energy use.',
-        options:[
-            {text:'Eco: blankets when cold, fans instead of AC', value:-150},
-            {text:'Normal: I let the house thermostat handle it', value:0},
-            {text:'A little wasteful: space heater or window AC', value:400},
-            {text:'Very wasteful: windows open while AC runs', value:900}
-        ]
-    },
-    {
-        id:'qScreens', category:'Housing & Energy', type:'slider', icon:'🎮',
-        title:'How many hours a day do you game or use large screens?',
-        desc:'TVs and gaming consoles (PS5, Xbox) use 10–50× more electricity than a phone.',
-        min:0, max:12, default:3, unit:'hours / day',
-        multiplier:45,
-        impactText: v => v===0 ? 'Zero large-screen time! 🌱' : `≈ ${Math.round(v*45).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qStreaming', category:'Housing & Energy', type:'slider', icon:'📱',
-        title:'How many hours a day do you stream video?',
-        desc:'TikTok, YouTube, Netflix — data centers need massive electricity and cooling to serve you video.',
-        min:0, max:12, default:3, unit:'hours / day',
-        multiplier:40,
-        impactText: v => v===0 ? 'Zero streaming! 🌱' : `≈ ${Math.round(v*40).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qAI', category:'Housing & Energy', type:'slider', icon:'🤖',
-        title:'How many AI prompts do you use per week?',
-        desc:'Generating an AI response uses ~10× the electricity and water of a standard Google search.',
-        min:0, max:200, default:10, unit:'prompts / week',
-        multiplier:7,
-        impactText: v => v===0 ? 'Zero AI usage! 🌱' : `≈ ${Math.round(v*7).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qCharging', category:'Housing & Energy', type:'options', icon:'🔌',
-        title:'How do you handle charging your devices?',
-        desc:'"Vampire power" — chargers left plugged in without a device still draw watts continuously.',
-        options:[
-            {text:'I unplug chargers when I\'m done using them', value:0},
-            {text:'I unplug my phone but leave the cord in the wall', value:100},
-            {text:'I leave devices plugged in 24/7 even at 100%', value:250}
-        ]
-    },
-    // ── CONSUMERISM
-    {
-        id:'qClothes', category:'Consumerism', type:'slider', icon:'👕',
-        title:'How many new clothing items do you get per month?',
-        desc:'The "fast fashion" industry produces ~10% of all global CO₂ emissions.',
-        min:0, max:20, default:3, unit:'items / month',
-        multiplier:168,
-        impactText: v => v===0 ? 'No new clothes! 🌱' : `≈ ${Math.round(v*168).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qSecondhand', category:'Consumerism', type:'options', icon:'♻️',
-        title:'Do you shop secondhand?',
-        desc:'A secondhand garment has ~82% lower carbon footprint than buying new.',
-        options:[
-            {text:'Yes — most of my clothes and stuff come secondhand', value:-500},
-            {text:'Sometimes — I mix new and used', value:-150},
-            {text:'Rarely — I mostly buy new', value:0},
-            {text:'Never — I only buy new items', value:200}
-        ]
-    },
-    {
-        id:'qPackages', category:'Consumerism', type:'slider', icon:'📦',
-        title:'How many online packages arrive just for you per month?',
-        desc:'Each package means cardboard, plastic wrap, foam, and a delivery truck driving to your house.',
-        min:0, max:20, default:3, unit:'packages / month',
-        multiplier:24,
-        impactText: v => v===0 ? 'No packages! 🌱' : `≈ ${Math.round(v*24).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qDrinks', category:'Consumerism', type:'slider', icon:'🥫',
-        title:'How many single-use drinks do you use per week?',
-        desc:'Includes energy drink cans (Celsius, Monster), plastic water bottles, and Starbucks cups. Producing raw aluminum and plastic is highly energy-intensive.',
-        min:0, max:30, default:5, unit:'single-use drinks / week',
-        multiplier:10,
-        impactText: v => v===0 ? 'Zero single-use drinks! 🌱' : `≈ ${Math.round(v*10).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qCups', category:'Consumerism', type:'slider', icon:'🥤',
-        title:'How many heavy reusable cups do you own? (Stanley, Yeti)',
-        desc:'One steel tumbler takes ~40× the energy to make as a plastic bottle. Over-collecting them defeats their purpose.',
-        min:0, max:20, default:2, unit:'reusable cups owned',
-        multiplier:0, // Handled in calculation logic
-        impactText: v => v<=2 ? 'Smart! Up to 2 is eco-positive 🌱' : `${v-2} extra cup(s) above what you realistically need`
-    },
-    {
-        id:'qShoes', category:'Consumerism', type:'slider', icon:'👟',
-        title:'How many new pairs of shoes or sneakers do you get per year?',
-        desc:'Sneaker production is highly carbon-heavy due to rubber vulcanization and foam manufacturing.',
-        min:0, max:15, default:3, unit:'pairs / year',
-        multiplier:30,
-        impactText: v => v===0 ? 'No new shoes! 🌱' : `≈ ${Math.round(v*30).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qPhone', category:'Consumerism', type:'options', icon:'📱',
-        title:'How often do you get a new cell phone?',
-        desc:'Mining lithium, cobalt, and rare-earth metals for batteries creates massive carbon spikes.',
-        options:[
-            {text:'Every year — I always want the newest model', value:990},
-            {text:'Every 2 years', value:495},
-            {text:'Every 3–4 years', value:248},
-            {text:'I keep it until it breaks, or I buy refurbished', value:75},
-            {text:"I don't have my own phone", value:0}
-        ]
-    },
-    {
-        id:'qBeauty', category:'Consumerism', type:'slider', icon:'🧴',
-        title:'How many new beauty/skincare products do you buy a month?',
-        desc:'The beauty industry relies heavily on single-use plastic and complex chemical manufacturing.',
-        min:0, max:15, default:2, unit:'products / month',
-        multiplier:13,
-        impactText: v => v===0 ? 'Zero beauty products! 🌱' : `≈ ${Math.round(v*13).toLocaleString()} lbs CO₂/yr`
-    },
-    {
-        id:'qPetMeat', category:'Food', type:'options', icon:'🐾',
-        title:'Does your household have any pets?',
-        desc:'Pets have significant footprints from meat-based pet food. A large dog eats like a small car drives.',
-        options:[
-            {text:'No pets', value:0},
-            {text:'Cat or small dog (or fish, bird, hamster)', value:200},
-            {text:'Medium-sized dog', value:500},
-            {text:'Large dog (Lab, Golden Retriever, Husky, etc)', value:900},
-            {text:'Multiple large dogs or multiple pets', value:1600}
-        ]
-    }
+// ═══ QUESTIONS ════════════════════════════════════════════════════════
+// grp: 'you' = your own choices, 'home' = your household's choices. f(answer, ctx) returns kg CO2e/yr.
+const S=(id,cat,grp,icon,title,desc,min,max,def,unit,f)=>({id,cat,grp,icon,title,desc,type:'slider',min,max,def,unit,f});
+const O=(id,cat,grp,icon,title,desc,texts,f)=>({id,cat,grp,icon,title,desc,type:'options',texts,f:Array.isArray(f)?(i=>f[i]):f});
+const Q=[
+S('meatRed','Food','you','🍔','How many meals a week include red meat?','Beef and lamb are carbon-heavy: cattle produce methane and need huge amounts of land.',0,14,4,'meals / week',v=>v*150),
+S('meatOther','Food','you','🍗','How many meals a week include chicken, pork, or fish?','Lower than beef, but still higher than plant-based meals.',0,21,7,'meals / week',v=>v*35),
+O('dairy','Food','you','🥛','How much dairy do you consume?','Milk, cheese, yogurt, and ice cream come from cows, a major hidden carbon source.',['None — plant-based alternatives','A little — occasional cheese or yogurt','Moderate — daily milk and regular cheese','A lot — ice cream, milkshakes, cheese on everything'],[0,135,340,635]),
+O('caffeine','Food','you','☕','What is your coffee, energy drink, or boba habit?','Cups, dairy, a car trip, and global shipping all add up.',["I don't drink coffee, boba, or specialty drinks",'Home-brewed with a reusable mug','Occasional coffee shop or drive-through','Daily Starbucks, Dutch Bros, boba, or similar'],[0,25,90,295]),
+S('takeout','Food','you','🛵','How many times a week do you get takeout or delivery?','Delivery means a car trip plus single-use containers.',0,10,2,'deliveries / week',v=>v*105),
+O('foodWaste','Food','home','🗑️','How much food gets wasted at your house?','Food rotting in landfills makes methane. The US wastes 30–40% of its food.',['Almost none — we eat leftovers or compost','A little — some food occasionally goes bad','A fair amount — leftovers often get tossed','A lot — food gets thrown out nearly every day'],(i,c)=>[0,115,270,500][i]*c.hh),
+O('pets','Food','home','🐾','Does your household have any pets?','Meat-based pet food has a real footprint. A large dog eats a lot.',['No pets','Cat or small dog (or fish, bird, hamster)','Medium-sized dog','Large dog (Lab, Golden Retriever, Husky)','Multiple large dogs or multiple pets'],(i,c)=>[0,90,225,410,725][i]*c.hh),
+
+O('carType','Transportation','home','🚗','When you ride in a car, what type is it usually?','A large SUV burns 2–3× the fuel of a small sedan. This changes your driving totals below.',['Full Electric Vehicle (EV)','Plug-in Hybrid (PHEV)','Regular Hybrid (like a Prius)','Small or midsize sedan or SUV','Large SUV, Minivan, or Pickup Truck'],[0,0,0,0,0]),
+O('commute','Transportation','you','🏫','How do you usually get to school?','Your commute happens about 180 days a year.',['Walk or pedal bike','E-bike or electric scooter','School bus','Carpool (3 or more people in the car)','Carpool (just you and one other person)','Private drop-off (you and a parent/guardian)'],[0,0,0,0,0,0]),
+{...S('commuteDist','Transportation','you','📍','How many miles is your school commute one-way?','Distance multiplies the impact of your commute method.',0,10,2,'miles (one way)',(v,c)=>v*KG_PER_MILE*c.mode*(c.carMode?c.car:1)),skip:()=>ans.commute===0},
+S('weekendCar','Transportation','home','🗺️','On a typical weekend, how many hours do you ride in a car?','Count errands, mall trips, and restaurants. Sports travel is the next-but-one question.',0,20,4,'hours / weekend',(v,c)=>v*159*c.car),
+O('sports','Transportation','you','🏆','How far do you travel for sports or activities?','Club sports and tournaments can mean hours of driving per weekend.',["I don't do organized sports or travel activities",'Local only — under 15 minutes away','Regional — occasional 30–60 minute drives','Travel team — frequent multi-hour drives or overnights'],[0,135,360,900]),
+O('flights','Transportation','home','✈️','How many round-trip flights did you take in the last year?','Flying is one of the most carbon-intensive activities per hour.',['None','1 short flight (under 2 hrs)','2–3 short flights','1 long flight (cross-country or international)','2+ long flights'],[0,500,1270,1590,3400]),
+
+S('hhSize','Housing & Energy','home','👥','Including you, how many people live in your home?','Heating, cooling, and lighting a home are shared by everyone in it.',1,8,4,'people',()=>0),
+O('house','Housing & Energy','home','🏠','What type of home do you live in?','Larger homes need much more energy to heat and cool.',['Apartment or condo','Townhouse or rowhouse','Small detached house','Large detached house'],(i,c)=>[0,180,410,815][i]*c.hh*c.green),
+O('heating','Housing & Energy','home','🔥','How is your home mostly heated?','Gas and oil burn fuel on site; electricity depends on how it is generated.',['Natural gas','Heating oil','Electric (heat pump or baseboard)','Not sure'],(i,c)=>[320,450,100,320][i]*c.hh*c.green),
+O('green','Housing & Energy','home','☀️','Does your home use solar or 100% green electricity?','Solar or a green energy plan cuts your home energy footprint.',['Yes','Not sure','No'],[0,0,0]),
+O('temp','Housing & Energy','you','🌡️','How do you manage the temperature in your room?','Heating and cooling are nearly half of home energy use.',['Eco: blankets when cold, fans instead of AC','Normal: I let the house thermostat handle it','A little wasteful: space heater or window AC','Very wasteful: windows open while AC runs'],[0,70,250,480]),
+
+S('screens','Digital Life','you','🎮','How many hours a day do you game or use large screens?','TVs and consoles use 10–50× more electricity than a phone.',0,12,3,'hours / day',v=>v*20),
+S('streaming','Digital Life','you','📱','How many hours a day do you stream video?','Data centers need electricity and cooling to serve every video.',0,12,3,'hours / day',v=>v*18),
+S('ai','Digital Life','you','🤖','How many AI prompts do you use per week?','One prompt uses more electricity than one web search, but a single prompt is small. It adds up across millions of users.',0,200,10,'prompts / week',v=>v*0.1),
+
+O('secondhand','Consumerism','you','♻️','Do you shop secondhand?','A secondhand garment has a far lower footprint than a new one. This changes your clothing and shoe totals.',['Yes — most of my clothes come secondhand','Sometimes — I mix new and used','Rarely — I mostly buy new','Never — I only buy new'],[0,0,0,0]),
+S('clothes','Consumerism','you','👕','How many new clothing items do you get per month?','Making, dyeing, and shipping clothes takes a lot of energy.',0,20,3,'items / month',(v,c)=>v*76*c.sh),
+S('shoes','Consumerism','you','👟','How many new pairs of shoes do you get per year?','Rubber and foam manufacturing is carbon-heavy.',0,15,3,'pairs / year',(v,c)=>v*14*c.sh),
+S('packages','Consumerism','you','📦','How many online packages arrive just for you per month?','Each one means packaging and a delivery truck.',0,20,3,'packages / month',v=>v*11),
+S('drinks','Consumerism','you','🥫','How many single-use drinks do you have per week?','Energy drink cans, plastic water bottles, and disposable cups. Aluminum and plastic take lots of energy to make.',0,30,5,'drinks / week',v=>v*4.5),
+S('cups','Consumerism','you','🥤','How many heavy reusable cups do you own? (Stanley, Yeti)','A steel tumbler takes far more energy to make than a plastic bottle. The first 2 are treated as useful; extras count.',0,20,2,'cups owned',v=>Math.max(0,v-2)*9),
+O('phone','Consumerism','you','📲','How often do you get a new cell phone?','Making a phone (mining, chips, assembly) is most of its lifetime footprint.',['Every year — I want the newest model','Every 2 years','Every 3–4 years','Until it breaks, or I buy refurbished',"I don't have my own phone"],[70,35,20,12,0]),
+S('beauty','Consumerism','you','🧴','How many new beauty or skincare products do you buy a month?','Mostly single-use plastic and chemical manufacturing.',0,15,2,'products / month',v=>v*6)
 ];
 
-// Pre-made arrays matched exactly to the 29 questions
-const influencerProfile = [10, 14, 3, 2, 5, 3, 4, 5, 8, 8, 4, 3, 3, 2, 1, 3, 8, 6, 80,  2, 15, 3, 12, 20, 10, 12, 0, 8, 3];
-const athleteProfile    = [8,  14, 3, 1, 4, 2, 4, 5, 10,10, 2, 3, 3, 1, 1, 2, 2, 2, 5,   2, 4,  2, 4,  20, 4,  6,  1, 2, 3];
-const gamerProfile      = [2,  5,  2, 2, 6, 3, 2, 2, 5, 1,  0, 0, 2, 1, 1, 2, 10,6, 100, 2, 1,  2, 8,  15, 1,  1,  0, 0, 1];
-const averageProfile    = [4,  7,  2, 2, 2, 1, 3, 3, 5, 4,  1, 1, 2, 1, 1, 1, 4, 3, 10,  1, 3,  2, 3,  5,  2,  3,  2, 2, 2];
-const ecoProfile        = [0,  2,  0, 0, 0, 0, 0, 0, 2, 0,  0, 0, 0, 0, 0, 0, 1, 1, 5,   0, 0,  0, 0,  0,  1,  2,  3, 1, 0];
+// ═══ SCORING ══════════════════════════════════════════════════════════
+function ctx(m){const s=m.hhSize??4;return{car:CARS[m.carType]??1,hh:Math.min(1.5,Math.max(.4,3/s)),green:m.green===0?.6:1,sh:SECOND[m.secondhand]??1,mode:MODE[m.commute]??1,carMode:m.commute>=3}}
+const pts=(q,m)=>m[q.id]==null?0:Math.round(q.f(m[q.id],ctx(m)));
+const modeled=m=>Q.reduce((t,q)=>t+pts(q,m),0);
+const ansText=(q,a)=>q.texts?q.texts[a]:`${a} ${q.unit}`;
+const skipped=i=>Q[i].skip&&Q[i].skip();
 
-// ── STATE
-let step = -1;
-let answers = new Array(questions.length).fill(null);
+// Sample profiles: answers keyed by question id (options = option index, sliders = value). Unlisted ids use AVG.
+const AVG={meatRed:4,meatOther:7,dairy:2,caffeine:1,takeout:2,foodWaste:2,pets:1,carType:3,commute:3,commuteDist:2,weekendCar:4,sports:1,flights:1,hhSize:4,house:2,heating:0,green:1,temp:1,screens:4,streaming:3,ai:10,secondhand:2,clothes:3,shoes:3,packages:3,drinks:5,cups:2,phone:2,beauty:2};
+const PROFILES={
+ influencer:{label:'The Influencer',over:{meatRed:10,meatOther:14,dairy:3,caffeine:3,takeout:5,carType:4,commute:5,commuteDist:8,weekendCar:8,sports:3,flights:4,house:3,heating:1,temp:3,screens:8,streaming:6,ai:80,secondhand:3,clothes:15,shoes:12,packages:12,drinks:20,cups:10,phone:0,beauty:8,pets:3}},
+ athlete:{label:'The Athlete',over:{meatRed:8,meatOther:14,dairy:3,caffeine:2,takeout:4,foodWaste:1,carType:4,commute:5,commuteDist:10,weekendCar:10,sports:3,flights:2,house:3,temp:2,screens:2,streaming:2,ai:5,clothes:4,shoes:6,packages:4,drinks:20,cups:4,phone:1,pets:3}},
+ gamer:{label:'The Gamer',over:{meatRed:2,meatOther:5,takeout:6,caffeine:3,carType:2,commute:2,commuteDist:5,weekendCar:1,sports:0,flights:0,temp:2,screens:10,streaming:6,ai:100,clothes:1,packages:8,drinks:15,cups:1,shoes:1,phone:0,beauty:0}},
+ average:{label:'The Average Teen',over:{}},
+ eco:{label:'The Eco-Teen',over:{meatRed:0,meatOther:2,dairy:0,caffeine:0,takeout:0,foodWaste:0,pets:0,carType:0,commute:0,weekendCar:0,sports:0,flights:0,house:0,heating:2,green:0,temp:0,screens:1,streaming:1,ai:5,secondhand:0,clothes:0,shoes:2,packages:0,drinks:0,cups:1,phone:3,beauty:1}}
+};
+// Shared baseline (kg): derived so the AVG profile equals TARGET_AVG_TONS.
+const BASELINE=Math.max(0,TARGET_AVG_TONS*1000-modeled(AVG));
 
-const $contentArea = document.getElementById('content-area');
-const $progressBar = document.getElementById('progress-bar');
-const $progressContainer = document.getElementById('progress-container');
+function compute(m){
+ const rows=Q.filter(q=>m[q.id]!=null).map(q=>({q,kg:pts(q,m),text:ansText(q,m[q.id])}));
+ const cats={},grp={you:0,home:0};CATS.forEach(c=>cats[c]=0);
+ rows.forEach(r=>{cats[r.q.cat]+=r.kg;grp[r.q.grp]+=r.kg});
+ const kg=BASELINE+rows.reduce((s,r)=>s+r.kg,0);
+ return{rows,cats,grp,kg,tons:kg/1000,
+  top:[...rows].sort((a,b)=>b.kg-a.kg).filter(r=>r.kg>0).slice(0,3),
+  maxCat:Object.entries(cats).reduce((a,b)=>b[1]>a[1]?b:a)[0]};
+}
+const t1=n=>(Math.round(n*10)/10).toFixed(1);
 
-// ══════════════════════════════════════════════════════
-// SCORE CALCULATION
-// ══════════════════════════════════════════════════════
-function calculateScore() {
-    const ctx = buildCtx(questions.length - 1);
-    let total = BASELINE;
-    const cats = {Food:0, Transportation:0, 'Housing & Energy':0, Consumerism:0};
-    const report = [];
+// ═══ UI ═══════════════════════════════════════════════════════════════
+const $c=document.getElementById('ca'),$bar=document.getElementById('bar'),$pc=document.getElementById('pc');
+let step=-1,ans={},cuts=new Set(),cur=null;
 
-    for (let i = 0; i < questions.length; i++) {
-        const q = questions[i];
-        const ans = answers[i];
-        if (ans === null) continue;
-        
-        const {pts, ansText} = scorePts(q, ans, ctx);
-        total += pts;
-        cats[q.category] = (cats[q.category] || 0) + pts;
-        report.push({questionId:q.id, questionTitle:q.title, category:q.category, answerGiven:ansText, carbonLbsAdded:pts});
-    }
-    return {total: Math.max(total, 500), cats, report};
+function renderIntro(){
+ step=-1;$pc.classList.add('hidden');
+ const sp=Object.entries(PROFILES).map(([k,p])=>`<button onclick="runSample('${k}')" class="bg-gray-50 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-3 rounded-lg border border-gray-200 text-sm">${p.label}</button>`).join('');
+ $c.innerHTML=`<div class="fade-in text-center flex flex-col items-center py-2">
+  <h2 class="font-serif text-3xl md:text-4xl text-gray-900 mb-6">Discover Your Impact</h2>
+  <div class="bg-blue-50 border border-blue-100 rounded-2xl p-5 mb-8 text-left max-w-lg text-sm text-blue-800 leading-relaxed">
+   <h4 class="font-bold text-blue-900 uppercase tracking-wider mb-1">ℹ️ The Shared Baseline</h4>
+   Everyone starts with about <strong>${t1(BASELINE/1000)} tons</strong> of CO₂ per year. That covers things you share with everyone: the power grid, roads, schools, stores, hospitals, and products your family buys that this audit does not ask about. You can't change it alone, but voters, companies, and governments can.
+  </div>
+  <p class="text-sm text-gray-500 mb-6 max-w-lg">Answer honestly. If you aren't sure about a household question, make your best guess. This is an estimate, not a measurement.</p>
+  <button onclick="startQuiz()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 px-10 rounded-xl shadow-lg text-lg mb-8">Start My Audit →</button>
+  <div class="w-full pt-6 border-t border-gray-100"><p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-4">Or analyze a sample profile:</p><div class="flex flex-wrap gap-2 justify-center">${sp}</div></div></div>`;
+}
+function startQuiz(){ans={};cuts=new Set();step=0;$pc.classList.remove('hidden');renderQuestion()}
+function runSample(k){ans={...AVG,...PROFILES[k].over};cuts=new Set();showResults(k)}
+
+function impactText(q,v){const k=Math.round(q.f(v,ctx(ans)));return k===0?'Zero impact! 🌱':`≈ ${k.toLocaleString()} kg CO₂/yr`}
+function renderQuestion(){
+ const q=Q[step],a=ans[q.id];$bar.style.width=((step+1)/Q.length*100)+'%';
+ let inp;
+ if(q.type==='options'){
+  inp=`<div class="flex flex-col gap-3 mt-6">${q.texts.map((t,i)=>`<button onclick="pick(${i})" class="opt w-full text-left p-4 rounded-2xl border-2 ${a===i?'sel':'border-gray-200 bg-white'} flex items-center gap-4"><span class="text-xl w-8 text-center">${q.icon}</span><span class="font-medium ${a===i?'text-brand-800 font-bold':''}">${t}</span></button>`).join('')}</div>`;
+ }else{
+  const v=a??q.def;
+  inp=`<div class="bg-brand-50 p-8 rounded-3xl border-2 border-brand-100 mt-6"><div class="text-center mb-8">
+   <div class="font-serif text-6xl text-brand-700 mb-2" id="sv">${v}</div>
+   <div class="text-sm font-semibold text-gray-500 uppercase tracking-widest">${q.unit}</div>
+   <div class="inline-block bg-white px-4 py-1.5 rounded-full text-xs font-bold text-gray-600 mt-4 border border-gray-100" id="si">${a==null?'Move the slider to answer':impactText(q,v)}</div></div>
+   <input type="range" min="${q.min}" max="${q.max}" step="1" value="${v}" oninput="onSlide(this.value)" onchange="onSlide(this.value)" aria-label="${q.title}">
+   <div class="flex justify-between text-gray-400 text-xs font-bold mt-3"><span>${q.min}</span><span>${q.max}</span></div></div>`;
+ }
+ const last=Q.slice(step+1).every((_,i)=>skipped(step+1+i));
+ $c.innerHTML=`<div class="fade-in flex flex-col h-full">
+  <div class="flex items-center justify-between mb-4"><span class="bg-brand-100 text-brand-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">${q.cat}</span><span class="text-gray-400 text-sm font-bold">${step+1} / ${Q.length}</span></div>
+  <h2 class="font-serif text-2xl md:text-3xl text-gray-900 mb-3 leading-tight"><span class="text-3xl mr-2">${q.icon}</span>${q.title}</h2>
+  <p class="text-gray-500">${q.desc}</p>
+  <div class="flex-grow">${inp}</div>
+  <div class="mt-8 pt-4 flex gap-4 items-center justify-between border-t border-gray-100">
+   <div class="hidden md:block text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg border border-gray-100">Your footprint so far: <strong class="text-brand-600 text-lg" id="rt">${t1((BASELINE+modeled(ans))/1000)}</strong> tons</div>
+   <div class="flex gap-3 w-full md:w-auto"><button onclick="prevQ()" class="px-6 py-3 rounded-xl font-bold text-gray-500 hover:bg-gray-100 ${step===0?'invisible':''}">Back</button>
+   <button id="nb" onclick="nextQ()" class="flex-grow px-8 py-3 rounded-xl font-bold bg-brand-600 text-white hover:bg-brand-700 shadow-lg disabled:bg-gray-200 disabled:text-gray-400 disabled:shadow-none disabled:cursor-not-allowed" ${a==null?'disabled':''}>${last?'See Results →':'Next →'}</button></div></div></div>`;
+}
+function onSlide(v){const q=Q[step];ans[q.id]=parseInt(v);
+ document.getElementById('sv').textContent=v;document.getElementById('si').textContent=impactText(q,+v);
+ document.getElementById('rt').textContent=t1((BASELINE+modeled(ans))/1000);document.getElementById('nb').disabled=false}
+function pick(i){ans[Q[step].id]=i;renderQuestion()}
+function prevQ(){let i=step-1;while(i>0&&skipped(i))i--;if(i>=0){step=i;renderQuestion()}}
+function nextQ(){if(ans[Q[step].id]==null)return;let i=step+1;while(i<Q.length&&skipped(i))i++;if(i>=Q.length)return showResults('user');step=i;renderQuestion()}
+
+function showResults(type){
+ $pc.classList.add('hidden');$c.scrollTop=0;cur=type;
+ const r=compute(ans),t=r.tons,max=Math.max(t,TARGET_AVG_TONS)*1.05;
+ const bar=(l,v,col,bold)=>`<div><div class="flex justify-between text-xs font-bold ${bold?'text-brand-700':'text-gray-500'} mb-1"><span>${l}</span><span>${t1(v)} tons</span></div><div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden"><div class="${col} h-3 rounded-full" style="width:${Math.min(100,v/max*100)}%"></div></div></div>`;
+ const seg=(kg,col)=>`<div class="${col} h-4" style="width:${kg/r.kg/1+0*0>0?kg/r.kg*100:0}%"></div>`;
+ const eq=(i,h,b)=>`<div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex gap-4 items-center"><div class="text-3xl">${i}</div><div><div class="text-xs font-bold uppercase tracking-wide">${h}</div><div class="text-sm text-gray-500">${b}</div></div></div>`;
+ const badge=type==='user'?'':`<div class="inline-block bg-gray-100 text-gray-700 text-xs font-bold px-3 py-1 rounded-full mb-4">Sample profile: ${PROFILES[type].label}</div>`;
+ const topHtml=r.top.map(x=>`<div class="flex items-center justify-between gap-3 bg-gray-50 border border-gray-100 rounded-xl p-3"><div class="text-sm"><span class="text-xl mr-1">${x.q.icon}</span>${x.text} <span class="text-gray-400">· ${x.q.cat}</span></div><button id="cut-${x.q.id}" onclick="toggleCut('${x.q.id}')" class="shrink-0 text-xs font-bold px-3 py-2 rounded-lg border border-brand-600 text-brand-700 hover:bg-brand-50">Cut in half</button></div>`).join('');
+ const actions=type==='user'
+  ?`<button onclick="renderIntro()" class="sm:w-1/3 bg-white border-2 border-gray-200 text-gray-600 hover:bg-gray-50 font-bold py-4 rounded-xl">↺ Start Over</button><button id="sb" onclick="submitAudit()" class="sm:w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg text-lg">Submit Data to Teacher ✉️</button>`
+  :`<button onclick="renderIntro()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 rounded-xl shadow-lg text-lg">▶ Do My Own Audit Now</button>`;
+ $c.innerHTML=`<div class="fade-in pb-4">
+  <div class="text-center mb-8 border-b border-gray-100 pb-8">${badge}
+   <div class="font-serif text-7xl md:text-8xl text-brand-600 leading-none mb-2">${t1(t)}</div>
+   <div class="text-gray-400 font-bold uppercase tracking-widest text-sm">Metric Tons of CO₂ / Year</div>
+   <div class="text-gray-600 mt-3 text-sm">That is <b>${t1(t/GLOBAL_AVG_TONS)}×</b> the global average and <b>${t1(t/SUSTAINABLE_TONS)}×</b> a sustainable share.</div></div>
+
+  <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Who controls your footprint?</h3>
+  <div class="flex rounded-full overflow-hidden mb-2">${seg(r.grp.you,'bg-brand-500')}${seg(r.grp.home,'bg-amber-400')}${seg(BASELINE,'bg-gray-400')}</div>
+  <div class="flex flex-wrap gap-x-4 text-xs text-gray-500 mb-10"><span>🟢 Your choices: ${t1(r.grp.you/1000)} t</span><span>🟡 Your household's choices: ${t1(r.grp.home/1000)} t</span><span>⚪ Shared baseline: ${t1(BASELINE/1000)} t</span></div>
+
+  <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">Global comparison</h3>
+  <div class="space-y-4 mb-10">${bar('Sustainable share',SUSTAINABLE_TONS,'bg-brand-500')}${bar('Global average',GLOBAL_AVG_TONS,'bg-brand-400')}${bar('Typical American (all sources)',TARGET_AVG_TONS,'bg-amber-400')}${bar('You (this profile)',t,'bg-brand-700',1)}</div>
+
+  <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">What does ${t1(t)} tons equal?</h3>
+  <div class="grid sm:grid-cols-2 gap-3 mb-10">${eq('🌳','Offset',`Takes about <b>${Math.round(t*46).toLocaleString()} mature trees</b> a year to absorb.`)}${eq('🚗','Driving',`Equals driving a gas car about <b>${Math.round(t*2480).toLocaleString()} miles</b>.`)}${eq('⛽','Gasoline',`Equals burning about <b>${Math.round(t*112).toLocaleString()} gallons</b> of gas.`)}${eq('🌍','Earths needed',`If everyone lived this way, we'd need about <b>${t1(t/SUSTAINABLE_TONS)} Earths</b>' worth of sustainable carbon budget.`)}</div>
+
+  <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Your biggest habits: what if you cut one in half?</h3>
+  <div class="space-y-2 mb-3">${topHtml||'<p class="text-sm text-gray-500">No habits added emissions.</p>'}</div>
+  <div id="wi" class="text-sm text-gray-600 bg-brand-50 border border-brand-100 rounded-xl p-3 mb-10">Pick a habit to see how much a change could save.</div>
+
+  <div class="bg-gradient-to-br from-brand-800 to-brand-900 rounded-3xl p-6 md:p-8 text-white mb-8">
+   <h3 class="font-serif text-2xl mb-2">✍️ For Your Reflection</h3>
+   <p class="text-brand-100 text-sm mb-5">Your highest-emitting category is <strong class="text-white text-lg">${r.maxCat}</strong>${r.top[0]?`, and your biggest single habit is <strong class="text-white">${r.top[0].text}</strong>`:''}. Use these questions to guide your writing:</p>
+   <ul class="space-y-2 text-sm text-brand-50 list-disc list-inside"><li>Why do you think <em>${r.maxCat}</em> is your biggest impact area?</li><li>Which answer surprised you most, and why?</li><li>Name one realistic habit you could change next month.</li><li>Which part of your footprint could you not change, and who could?</li></ul></div>
+  <div id="msg" class="text-sm text-center mb-3 hidden"></div>
+  <div class="flex flex-col sm:flex-row gap-3">${actions}</div></div>`;
+}
+function toggleCut(id){
+ cuts.has(id)?cuts.delete(id):cuts.add(id);
+ const r=compute(ans);let save=0;
+ r.top.forEach(x=>{const on=cuts.has(x.q.id);if(on)save+=x.kg/2;const b=document.getElementById('cut-'+x.q.id);b.className=`shrink-0 text-xs font-bold px-3 py-2 rounded-lg border border-brand-600 ${on?'bg-brand-600 text-white':'text-brand-700 hover:bg-brand-50'}`});
+ document.getElementById('wi').innerHTML=save?`Those changes would save about <b>${t1(save/1000)} tons</b> (${Math.round(save/r.kg*100)}% of your total). Your new total: <b>${t1((r.kg-save)/1000)} tons</b>. Notice how much stays the same without changes from companies and governments.`:'Pick a habit to see how much a change could save.';
 }
 
-function getRunningTotal() {
-    const ctx = buildCtx(step);
-    let total = BASELINE;
-    for (let i = 0; i <= step; i++) {
-        const q = questions[i];
-        const ans = answers[i];
-        if (ans !== null) total += scorePts(q, ans, ctx).pts;
-    }
-    return (Math.max(total, 0) / 2000).toFixed(1);
+// ═══ IteratED BRIDGE ══════════════════════════════════════════════════
+function submitSimulation(simData=null){
+ const message={action:'SIM_COMPLETE'};
+ if(simData!==null&&simData!==undefined)message.simData=simData;
+ window.parent.postMessage(message,PARENT_ORIGIN);
 }
-
-function buildCtx(maxStep) {
-    const ciIdx = questions.findIndex(q => q.id === 'qCommuteMethod');
-    const ctIdx = questions.findIndex(q => q.id === 'qCarType');
-    const commuteMethod = (maxStep >= ciIdx && answers[ciIdx] !== null) ? answers[ciIdx] : null;
-    const carTypeAns    = (maxStep >= ctIdx && answers[ctIdx] !== null) ? answers[ctIdx] : null;
-    const carScaleMap = {0:0.3, 1:0.5, 2:0.65, 3:1.0, 4:1.7};
-    const carScale = carTypeAns !== null ? (carScaleMap[carTypeAns] ?? 1.0) : 1.0;
-    return {commuteMethod, carScale};
+function submitAudit(){
+ const msg=document.getElementById('msg'),btn=document.getElementById('sb');
+ msg.classList.remove('hidden');
+ if(window.parent===window){msg.textContent='Preview mode: this page is not inside IteratED, so nothing was sent.';msg.className='text-sm text-center mb-3 text-amber-600';return}
+ const r=compute(ans),tons=x=>Math.round(x/10)/100;
+ const breakdown={};CATS.forEach(c=>breakdown[c]=tons(r.cats[c]));breakdown['Shared baseline']=tons(BASELINE);
+ submitSimulation({
+  simVersion:SIM_VERSION,
+  carbonTons:Math.round(r.tons*10)/10,
+  unit:'metric tons CO2e/year',
+  highestCategory:r.maxCat,
+  topHabit:r.top[0]?r.top[0].text:'',
+  earthsNeeded:Math.round(r.tons/SUSTAINABLE_TONS*10)/10,
+  categoryBreakdown:breakdown,
+  profileUsed:'Self',
+  dataTable:r.rows.map(x=>({category:x.q.cat,answer:x.text,kgCO2e:x.kg})),
+  rawAnswers:ans
+ });
+ btn.disabled=true;btn.textContent='Submitted ✓';btn.className='sm:w-2/3 bg-brand-600 text-white font-bold py-4 rounded-xl text-lg';
+ msg.textContent='Data sent to your teacher. Record your results in your follow-up questions.';msg.className='text-sm text-center mb-3 text-brand-700';
 }
-
-function scorePts(q, ans, ctx) {
-    let pts = 0, ansText = '';
-    if (q.type === 'options') {
-        pts = q.options[ans].value;
-        ansText = q.options[ans].text;
-    } else if (q.type === 'slider') {
-        ansText = `${ans} ${q.unit}`;
-        if (q.id === 'qCommuteDist') {
-            const methodImpact = [0, 0.05, 0.25, 0.40, 0.55, 1.0];
-            const cm = ctx.commuteMethod;
-            const distScale = cm !== null ? (methodImpact[cm] ?? 1.0) : 1.0;
-            pts = Math.round(ans * 320 * distScale * (cm >= 3 ? ctx.carScale : 1));
-        } else if (q.id === 'qWeekendCar') {
-            pts = Math.round(ans * q.multiplier * ctx.carScale);
-        } else if (q.id === 'qCups') {
-            pts = Math.max(0, (ans - 2)) * 20; // First 2 are free
-        } else {
-            pts = ans * q.multiplier;
-        }
-    }
-    return {pts, ansText};
-}
-
-// ══════════════════════════════════════════════════════
-// RENDER: INTRO
-// ══════════════════════════════════════════════════════
-function renderIntro() {
-    step = -1;
-    $progressContainer.classList.add('hidden');
-    $contentArea.innerHTML = `
-        <div class="fade-in text-center flex flex-col items-center justify-center h-full py-2">
-            <h2 class="font-serif text-3xl md:text-4xl text-gray-900 mb-6">Discover Your Impact</h2>
-            
-            <div class="bg-blue-50/80 border border-blue-100 rounded-2xl p-5 mb-8 text-left flex gap-4 items-start shadow-sm mx-auto max-w-lg">
-                <div class="text-blue-500 text-3xl mt-1"><i class="fa-solid fa-circle-info"></i></div>
-                <div>
-                    <h4 class="font-bold text-blue-900 text-sm uppercase tracking-wider mb-1">The Baseline Rule</h4>
-                    <p class="text-sm text-blue-800 leading-relaxed">Everyone automatically starts with a footprint of <strong>1.1 Tons (2,200 lbs)</strong>. This accounts for the shared public resources you use every day—like school buildings, road maintenance, and municipal water systems.</p>
-                </div>
-            </div>
-            
-            <button onclick="startQuiz()" class="w-full sm:w-auto bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 px-10 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all text-lg mb-8">
-                Start My Audit <i class="fa-solid fa-arrow-right ml-2"></i>
-            </button>
-            
-            <div class="w-full pt-6 border-t border-gray-100">
-                <p class="text-xs text-gray-400 font-bold uppercase tracking-widest mb-4">Or analyze a sample profile:</p>
-                <div class="flex flex-wrap gap-2 justify-center">
-                    <button onclick="runSampleProfile('influencer')" class="bg-purple-50 hover:bg-purple-100 text-purple-700 font-semibold py-2 px-3 rounded-lg border border-purple-200 transition-colors text-sm"><i class="fa-solid fa-mobile-screen mr-1"></i> Influencer</button>
-                    <button onclick="runSampleProfile('athlete')" class="bg-orange-50 hover:bg-orange-100 text-orange-700 font-semibold py-2 px-3 rounded-lg border border-orange-200 transition-colors text-sm"><i class="fa-solid fa-football mr-1"></i> Athlete</button>
-                    <button onclick="runSampleProfile('gamer')" class="bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold py-2 px-3 rounded-lg border border-blue-200 transition-colors text-sm"><i class="fa-solid fa-gamepad mr-1"></i> Gamer</button>
-                    <button onclick="runSampleProfile('average')" class="bg-gray-50 hover:bg-gray-100 text-gray-700 font-semibold py-2 px-3 rounded-lg border border-gray-200 transition-colors text-sm"><i class="fa-solid fa-user mr-1"></i> Average Teen</button>
-                    <button onclick="runSampleProfile('eco')" class="bg-brand-50 hover:bg-brand-100 text-brand-700 font-semibold py-2 px-3 rounded-lg border border-brand-200 transition-colors text-sm"><i class="fa-solid fa-leaf mr-1"></i> Eco-Teen</button>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function startQuiz() {
-    step = 0;
-    answers = new Array(questions.length).fill(null);
-    questions.forEach((q, i) => { if (q.type === 'slider') answers[i] = q.default; });
-    $progressContainer.classList.remove('hidden');
-    renderQuestion();
-}
-
-function runSampleProfile(type) {
-    if (type === 'influencer') answers = [...influencerProfile];
-    else if (type === 'athlete') answers = [...athleteProfile];
-    else if (type === 'gamer') answers = [...gamerProfile];
-    else if (type === 'average') answers = [...averageProfile];
-    else if (type === 'eco') answers = [...ecoProfile];
-    
-    renderResults(type);
-}
-
-// ══════════════════════════════════════════════════════
-// RENDER: QUESTION
-// ══════════════════════════════════════════════════════
-function renderQuestion() {
-    const q = questions[step];
-    const pct = ((step + 1) / questions.length) * 100;
-    $progressBar.style.width = `${pct}%`;
-
-    const ans = answers[step];
-    let inputHtml = '';
-
-    if (q.type === 'options') {
-        inputHtml = `<div class="flex flex-col gap-3 mt-6">
-            ${q.options.map((opt, i) => `
-                <button onclick="selectOption(${i})" class="option-card w-full text-left p-4 rounded-2xl border-2 ${ans === i ? 'selected' : 'border-gray-200 bg-white hover:bg-gray-50'} flex items-center gap-4">
-                    <div class="w-8 h-8 flex items-center justify-center text-xl shrink-0 opacity-80">${q.icon}</div>
-                    <span class="font-medium text-gray-800 ${ans === i ? 'text-brand-800 font-bold' : ''}">${opt.text}</span>
-                </button>
-            `).join('')}
-        </div>`;
-    } else {
-        const val = (ans !== null ? ans : q.default);
-        inputHtml = `
-            <div class="bg-brand-50 p-8 rounded-3xl border-2 border-brand-100 mt-6 shadow-sm">
-                <div class="text-center mb-8">
-                    <div class="font-serif text-6xl text-brand-700 mb-2" id="sliderVal">${val}</div>
-                    <div class="text-sm font-semibold text-gray-500 uppercase tracking-widest">${q.unit}</div>
-                    <div class="inline-block bg-white px-4 py-1.5 rounded-full text-xs font-bold text-gray-600 mt-4 shadow-sm border border-gray-100" id="sliderImpact">
-                        ${q.impactText(val)}
-                    </div>
-                </div>
-                <input type="range" min="${q.min}" max="${q.max}" step="1" value="${val}" oninput="onSlider(this.value)">
-                <div class="flex justify-between text-gray-400 text-xs font-bold mt-3">
-                    <span>${q.min}</span><span>${q.max}</span>
-                </div>
-            </div>
-        `;
-    }
-
-    const canGo = answers[step] !== null;
-    const isLast = step === questions.length - 1;
-
-    $contentArea.innerHTML = `
-        <div class="fade-in flex flex-col h-full">
-            <div class="flex items-center justify-between mb-4">
-                <span class="bg-brand-100 text-brand-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">${q.category}</span>
-                <span class="text-gray-400 text-sm font-bold">${step + 1} / ${questions.length}</span>
-            </div>
-            
-            <h2 class="font-serif text-2xl md:text-3xl text-gray-900 mb-3 leading-tight"><span class="text-3xl mr-2">${q.icon}</span> ${q.title}</h2>
-            <p class="text-gray-500 text-base leading-relaxed">${q.desc}</p>
-            
-            <div class="flex-grow">${inputHtml}</div>
-
-            <!-- Sticky Bottom Navigation -->
-            <div class="mt-8 pt-4 flex flex-col sm:flex-row gap-4 items-center justify-between border-t border-gray-100">
-                <div class="w-full sm:w-auto text-center sm:text-left text-sm text-gray-500 bg-gray-50 px-4 py-2 rounded-lg border border-gray-100 hidden md:block">
-                    Your footprint so far: <strong class="text-brand-600 ml-1 text-lg" id="rtVal">${getRunningTotal()}</strong> tons
-                </div>
-                
-                <div class="flex gap-3 w-full sm:w-auto">
-                    <button onclick="prevQ()" class="px-6 py-3 rounded-xl font-bold text-gray-500 hover:bg-gray-100 transition-colors border border-transparent ${step === 0 ? 'invisible' : ''}">
-                        Back
-                    </button>
-                    <button onclick="nextQ()" id="nextBtn" class="flex-grow sm:flex-grow-0 px-8 py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2 ${canGo ? 'bg-brand-600 text-white hover:bg-brand-700 shadow-lg hover:-translate-y-0.5' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}" ${!canGo ? 'disabled' : ''}>
-                        ${isLast ? 'See Results' : 'Next'} <i class="fa-solid ${isLast ? 'fa-chart-pie' : 'fa-arrow-right'}"></i>
-                    </button>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function onSlider(val) {
-    answers[step] = parseInt(val);
-    document.getElementById('sliderVal').textContent = val;
-    document.getElementById('sliderImpact').textContent = questions[step].impactText(parseInt(val));
-    document.getElementById('rtVal').textContent = getRunningTotal();
-    const btn = document.getElementById('nextBtn');
-    if (btn) {
-        btn.disabled = false;
-        btn.classList.replace('bg-gray-200', 'bg-brand-600');
-        btn.classList.replace('text-gray-400', 'text-white');
-        btn.classList.remove('cursor-not-allowed');
-        btn.classList.add('hover:bg-brand-700', 'shadow-lg', 'hover:-translate-y-0.5');
-    }
-}
-
-function selectOption(i) { answers[step] = i; renderQuestion(); }
-function prevQ() { if (step > 0) { step--; renderQuestion(); } }
-function nextQ() {
-    if (answers[step] === null) return;
-    if (step < questions.length - 1) { step++; renderQuestion(); }
-    else renderResults('user');
-}
-
-// ══════════════════════════════════════════════════════
-// RENDER: RESULTS
-// ══════════════════════════════════════════════════════
-function renderResults(profileType) {
-    $progressContainer.classList.add('hidden');
-    $contentArea.scrollTop = 0;
-
-    const {total, cats, report} = calculateScore();
-    const tons = parseFloat((total / 2000).toFixed(1));
-    const maxCat = Object.entries(cats).reduce((a, b) => b[1] > a[1] ? b : a)[0];
-    const scaleMax = Math.max(tons, 20);
-
-    const globalPct = Math.min(100, (4.5 / scaleMax * 100)).toFixed(1);
-    const usPct     = Math.min(100, (15 / scaleMax * 100)).toFixed(1);
-    const userPct   = Math.min(100, (tons / scaleMax * 100)).toFixed(1);
-    
-    // Striking stats
-    const earths    = (tons / 4.5).toFixed(1);
-    const trees     = Math.round(tons * 41).toLocaleString();
-    const carMiles  = Math.round(tons * 2481).toLocaleString();
-    const sharks    = Math.max(1, Math.round(tons * 0.44)).toLocaleString();
-
-    let scoreColor = 'text-brand-600';
-    let barColor = 'bg-brand-500';
-    let scoreMood = 'Below average — strong habits! 🌱';
-    if (tons >= 8 && tons < 14) {
-        scoreColor = 'text-amber-500'; barColor = 'bg-amber-400'; scoreMood = 'Around the US teen average 🌎';
-    } else if (tons >= 14) {
-        scoreColor = 'text-red-500'; barColor = 'bg-red-500'; scoreMood = 'Above average — big room to improve ⚠️';
-    }
-
-    const badgeMap = {
-        'influencer': '<div class="inline-block bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1 rounded-full mb-4"><i class="fa-solid fa-mobile-screen mr-1"></i> Profile: The Influencer</div>',
-        'athlete': '<div class="inline-block bg-orange-100 text-orange-700 text-xs font-bold px-3 py-1 rounded-full mb-4"><i class="fa-solid fa-football mr-1"></i> Profile: The Athlete</div>',
-        'gamer': '<div class="inline-block bg-blue-100 text-blue-700 text-xs font-bold px-3 py-1 rounded-full mb-4"><i class="fa-solid fa-gamepad mr-1"></i> Profile: The Gamer</div>',
-        'average': '<div class="inline-block bg-gray-100 text-gray-700 text-xs font-bold px-3 py-1 rounded-full mb-4"><i class="fa-solid fa-user mr-1"></i> Profile: The Average Teen</div>',
-        'eco': '<div class="inline-block bg-brand-100 text-brand-700 text-xs font-bold px-3 py-1 rounded-full mb-4"><i class="fa-solid fa-leaf mr-1"></i> Profile: The Eco-Teen</div>'
-    };
-    const badge = badgeMap[profileType] || '';
-
-    let actionButtonsHtml = '';
-    if (profileType === 'user') {
-        actionButtonsHtml = `
-            <button onclick="renderIntro()" class="sm:w-1/3 bg-white border-2 border-gray-200 text-gray-600 hover:bg-gray-50 hover:border-gray-300 font-bold py-4 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
-                <i class="fa-solid fa-rotate-left"></i> Start Over
-            </button>
-            <button onclick="submitToLMS('${profileType}')" id="submitBtn" class="sm:w-2/3 bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-lg">
-                Submit Data to Teacher <i class="fa-solid fa-paper-plane"></i>
-            </button>
-        `;
-    } else {
-        actionButtonsHtml = `
-            <button onclick="renderIntro()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-4 px-4 rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 text-lg">
-                <i class="fa-solid fa-play"></i> Do My Own Audit Now
-            </button>
-        `;
-    }
-
-    $contentArea.innerHTML = `
-        <div class="fade-in pb-4">
-            <div class="text-center mb-8 border-b border-gray-100 pb-8">
-                ${badge}
-                <div class="font-serif text-7xl md:text-8xl ${scoreColor} leading-none tracking-tight mb-2">${tons}</div>
-                <div class="text-gray-400 font-bold uppercase tracking-widest text-sm">Tons of CO₂ / Year</div>
-                <div class="text-gray-600 font-medium mt-3">${scoreMood}</div>
-            </div>
-
-            <!-- Comparison -->
-            <div class="mb-10">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2"><i class="fa-solid fa-chart-bar"></i> Global Comparison</h3>
-                
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between text-xs font-bold text-gray-500 mb-1">
-                            <span>Global Target (Sustainability)</span><span>4.5 Tons</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner"><div class="bg-brand-400 h-3 rounded-full" style="width:${globalPct}%"></div></div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs font-bold text-gray-500 mb-1">
-                            <span>Average US Teen</span><span>~15.0 Tons</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner"><div class="bg-amber-400 h-3 rounded-full" style="width:${usPct}%"></div></div>
-                    </div>
-                    <div>
-                        <div class="flex justify-between text-xs font-bold ${scoreColor} mb-1">
-                            <span>You (This Profile)</span><span>${tons} Tons</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden shadow-inner"><div class="${barColor} h-3 rounded-full" style="width:${userPct}%"></div></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Equivalencies -->
-            <div class="mb-10">
-                <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-4">What does ${tons} tons equal?</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex gap-4 items-center">
-                        <div class="text-3xl">🦈</div>
-                        <div>
-                            <div class="text-xs font-bold text-gray-800 uppercase tracking-wide">Weight</div>
-                            <div class="text-sm text-gray-500 mt-0.5">Weighs as much as <b>${sharks} Great White Sharks</b>.</div>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex gap-4 items-center">
-                        <div class="text-3xl">🌳</div>
-                        <div>
-                            <div class="text-xs font-bold text-gray-800 uppercase tracking-wide">Offset</div>
-                            <div class="text-sm text-gray-500 mt-0.5">Takes <b>${trees} mature trees</b> a year to absorb.</div>
-                        </div>
-                    </div>
-                    <div class="bg-gray-50 rounded-2xl p-4 border border-gray-100 flex gap-4 items-center">
-                        <div class="text-3xl">🚗</div>
-                        <div>
-                            <div class="text-xs font-bold text-gray-800 uppercase tracking-wide">Driving</div>
-                            <div class="text-sm text-gray-500 mt-0.5">Equals driving a gas car <b>${carMiles} miles</b>.</div>
-                        </div>
-                    </div>
-                    <div class="bg-blue-50 rounded-2xl p-4 border border-blue-100 flex gap-4 items-center">
-                        <div class="text-3xl">🌍</div>
-                        <div>
-                            <div class="text-xs font-bold text-blue-900 uppercase tracking-wide">Earths Needed</div>
-                            <div class="text-sm text-blue-700 mt-0.5">If everyone lived this way, we'd need <b>${earths} Earths</b>.</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reflection Prep -->
-            <div class="bg-gradient-to-br from-brand-800 to-brand-900 rounded-3xl p-6 md:p-8 text-white mb-8 shadow-xl">
-                <h3 class="font-serif text-2xl mb-2 flex items-center gap-3"><i class="fa-solid fa-pen-nib"></i> For Your Reflection</h3>
-                <p class="text-brand-100 text-sm mb-5 leading-relaxed">Your highest-emitting category is <strong class="text-white text-lg ml-1">${maxCat}</strong>. Note this down! Use these questions to guide your writing:</p>
-                <ul class="space-y-2 text-sm text-brand-50 list-disc list-inside opacity-90">
-                    <li>Why do you think <em>${maxCat}</em> is your biggest impact area?</li>
-                    <li>Which specific answer surprised you the most, and why?</li>
-                    <li>Name one realistic habit you could change next month.</li>
-                    <li>Why is reducing a personal footprint difficult?</li>
-                </ul>
-            </div>
-
-            <!-- Actions -->
-            <div class="flex flex-col sm:flex-row gap-3 mt-8">
-                ${actionButtonsHtml}
-            </div>
-        </div>
-    `;
-}
-
-// ══════════════════════════════════════════════════════
-// LMS SUBMISSION
-// ══════════════════════════════════════════════════════
-function submitToLMS(profileType) {
-    const btn = document.getElementById('submitBtn');
-    btn.innerHTML = `Submitting... <i class="fa-solid fa-spinner fa-spin"></i>`;
-    btn.classList.replace('bg-blue-600', 'bg-blue-400');
-    btn.disabled = true;
-
-    const {total, cats, report} = calculateScore();
-    const tonsCO2 = parseFloat((total / 2000).toFixed(1));
-    const highestCategory = Object.entries(cats).reduce((a, b) => b[1] > a[1] ? b : a)[0];
-
-    const payload = {
-        action: 'SIM_COMPLETE',
-        simData: {
-            carbonTons: tonsCO2,
-            highestCategory,
-            categoryBreakdown: Object.fromEntries(
-                Object.entries(cats).map(([k, v]) => [k, parseFloat((v / 2000).toFixed(2))])
-            ),
-            profileUsed: profileType === 'user' ? 'Self' : profileType,
-            detailedAnswers: report,
-            rawAnswerIndices: answers
-        }
-    };
-    
-    // Post to parent LMS window
-    window.parent.postMessage(payload, '*');
-
-    setTimeout(() => {
-        btn.innerHTML = `Submitted Successfully! <i class="fa-solid fa-check"></i>`;
-        btn.classList.replace('bg-blue-400', 'bg-brand-600');
-        btn.classList.remove('hover:-translate-y-0.5');
-    }, 800);
-}
-
-// Boot
 renderIntro();
 </script>
 </body>
